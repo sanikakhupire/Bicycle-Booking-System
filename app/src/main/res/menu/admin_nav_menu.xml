@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/manageStationsFragment"
+        android:icon="@drawable/ic_map"
+        android:title="Stations" />
+
+    <item
+        android:id="@+id/manageBicyclesFragment"
+        android:icon="@drawable/ic_bicycle"
+        android:title="Bicycles" />
+
+    <item
+        android:id="@+id/activeRidesFragment"
+        android:icon="@drawable/ic_history"
+        android:title="Active" />
+
+    <item
+        android:id="@+id/allRidesHistoryFragment"
+        android:icon="@drawable/ic_history"
+        android:title="History" />
+
+    <item
+        android:id="@+id/trackBicyclesFragment"
+        android:icon="@drawable/ic_track"
+        android:title="Track" />
+
+</menu>

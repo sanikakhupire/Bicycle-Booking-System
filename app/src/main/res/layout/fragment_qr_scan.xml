@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <!-- ZXing scanner -->
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/barcodeScanner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Back button -->
+    <ImageView
+        android:id="@+id/ivBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_back"
+        android:contentDescription="Back"
+        android:padding="8dp"
+        android:tint="@color/white" />
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvScanTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="64dp"
+        android:gravity="center"
+        android:text="Scan QR Code"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <!-- Instruction -->
+    <TextView
+        android:id="@+id/tvScanInstruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="220dp"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="Point camera at the QR code"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+    <!-- Cancel booking (UNLOCK mode only) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancelBooking"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="16dp"
+        android:backgroundTint="#CC0000"
+        android:text="Cancel"
+        android:textColor="@color/white" />
+
+    <!-- Manual entry -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnManualEntry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="120dp"
+        android:backgroundTint="@color/colorAccent"
+        android:text="Enter ID Manually"
+        android:textColor="@color/white" />
+
+    <!-- Error -->
+    <TextView
+        android:id="@+id/tvError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="80dp"
+        android:background="#AA000000"
+        android:gravity="center"
+        android:padding="12dp"
+        android:textColor="#FF5252"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
+    <!-- Progress -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</FrameLayout>

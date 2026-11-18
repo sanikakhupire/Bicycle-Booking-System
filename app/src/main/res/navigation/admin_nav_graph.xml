@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_nav_graph"
+    app:startDestination="@id/manageStationsFragment">
+
+    <fragment
+        android:id="@+id/manageStationsFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.admin.ManageStationsFragment"
+        android:label="Manage Stations"
+        tools:layout="@layout/fragment_manage_stations" />
+
+    <fragment
+        android:id="@+id/manageBicyclesFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.admin.ManageBicyclesFragment"
+        android:label="Manage Bicycles"
+        tools:layout="@layout/fragment_manage_bicycles" />
+
+    <fragment
+        android:id="@+id/activeRidesFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.admin.ActiveRidesFragment"
+        android:label="Active Rides"
+        tools:layout="@layout/fragment_active_rides" />
+
+    <fragment
+        android:id="@+id/trackBicyclesFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.admin.TrackBicyclesFragment"
+        android:label="Track Bicycles"
+        tools:layout="@layout/fragment_track_bicycles" />
+
+    <fragment
+        android:id="@+id/allRidesHistoryFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.admin.AllRidesHistoryFragment"
+        android:label="All Rides"
+        tools:layout="@layout/fragment_all_rides_history" />
+
+</navigation>

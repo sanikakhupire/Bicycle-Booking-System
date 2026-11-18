@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <!-- Home (Map) -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.home.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_home_to_stationDetail"
+            app:destination="@id/stationDetailFragment" />
+
+        <action
+            android:id="@+id/action_home_to_activeRide"
+            app:destination="@id/activeRideFragment" />
+    </fragment>
+
+    <!-- Station Detail -->
+    <fragment
+        android:id="@+id/stationDetailFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.station.StationDetailFragment"
+        android:label="Station Detail"
+        tools:layout="@layout/fragment_station_detail">
+
+        <argument
+            android:name="stationId"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_stationDetail_to_bookingConfirm"
+            app:destination="@id/bookingConfirmFragment" />
+    </fragment>
+
+    <!-- Booking Confirmation -->
+    <fragment
+        android:id="@+id/bookingConfirmFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.booking.BookingConfirmFragment"
+        android:label="Confirm Booking"
+        tools:layout="@layout/fragment_booking_confirm">
+
+        <argument
+            android:name="bicycleId"
+            app:argType="string" />
+        <argument
+            android:name="stationId"
+            app:argType="string" />
+        <argument
+            android:name="stationName"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_bookingConfirm_to_qrScan"
+            app:destination="@id/qrScanFragment" />
+    </fragment>
+
+    <!-- QR Scanner -->
+    <fragment
+        android:id="@+id/qrScanFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.qr.QrScanFragment"
+        android:label="Scan QR"
+        tools:layout="@layout/fragment_qr_scan">
+
+        <argument
+            android:name="bookingId"
+            app:argType="string" />
+        <argument
+            android:name="bicycleId"
+            app:argType="string" />
+        <argument
+            android:name="stationId"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="mode"
+            app:argType="string"
+            android:defaultValue="UNLOCK" />
+
+        <action
+            android:id="@+id/action_qrScan_to_activeRide"
+            app:destination="@id/activeRideFragment" />
+
+        <action
+            android:id="@+id/action_qrScan_to_rideComplete"
+            app:destination="@id/rideCompleteFragment" />
+    </fragment>
+
+    <!-- Active Ride -->
+    <fragment
+        android:id="@+id/activeRideFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.ride.ActiveRideFragment"
+        android:label="Active Ride"
+        tools:layout="@layout/fragment_active_ride">
+
+        <argument
+            android:name="bookingId"
+            app:argType="string" />
+        <argument
+            android:name="bicycleId"
+            app:argType="string" />
+        <argument
+            android:name="stationId"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_activeRide_to_rideComplete"
+            app:destination="@id/rideCompleteFragment" />
+    </fragment>
+
+    <!-- Ride Complete / Summary -->
+    <fragment
+        android:id="@+id/rideCompleteFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.ride.RideCompleteFragment"
+        android:label="Ride Complete"
+        tools:layout="@layout/fragment_ride_complete">
+
+        <argument
+            android:name="bookingId"
+            app:argType="string" />
+        <argument
+            android:name="fare"
+            app:argType="float" />
+        <argument
+            android:name="durationMinutes"
+            app:argType="long" />
+
+        <action
+            android:id="@+id/action_rideComplete_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Ride History -->
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.history.HistoryFragment"
+        android:label="Ride History"
+        tools:layout="@layout/fragment_history" />
+
+    <!-- Profile -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.profile.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" />
+
+</navigation>
