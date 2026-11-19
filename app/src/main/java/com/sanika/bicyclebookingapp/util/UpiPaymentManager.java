@@ -21,9 +21,8 @@ import java.util.List;
  */
 public class UpiPaymentManager {
 
-    // Replace with your actual UPI ID
-    private static final String PAYEE_UPA  = "7030462929@postbank";
-    private static final String PAYEE_NAME = "CycleGo";
+    private static final String DEFAULT_PAYEE_VPA  = "cyclego@upi";
+    private static final String DEFAULT_PAYEE_NAME = "CycleGo";
 
     public static final int UPI_REQUEST_CODE = 1001;
 
@@ -32,13 +31,20 @@ public class UpiPaymentManager {
         // Minimum UPI amount is ₹1
         if (amount < 1.0) amount = 1.0;
 
+        String payeeVpa = DEFAULT_PAYEE_VPA;
+        String payeeName = DEFAULT_PAYEE_NAME;
+        try {
+            payeeVpa = activity.getString(com.sanika.bicyclebookingapp.R.string.upi_payee_vpa);
+            payeeName = activity.getString(com.sanika.bicyclebookingapp.R.string.upi_payee_name);
+        } catch (Exception ignored) {}
+
         String amountStr = String.format("%.2f", amount);
 
         Uri uri = new Uri.Builder()
                 .scheme("upi")
                 .authority("pay")
-                .appendQueryParameter("pa", PAYEE_UPA)
-                .appendQueryParameter("pn", PAYEE_NAME)
+                .appendQueryParameter("pa", payeeVpa)
+                .appendQueryParameter("pn", payeeName)
                 .appendQueryParameter("tr", transactionId)
                 .appendQueryParameter("tn", note)
                 .appendQueryParameter("am", amountStr)

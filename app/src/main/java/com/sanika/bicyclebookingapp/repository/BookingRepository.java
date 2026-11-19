@@ -273,6 +273,8 @@ public class BookingRepository {
                 List<Booking> bookings = new ArrayList<>();
                 if (snapshots != null) {
                     for (QueryDocumentSnapshot doc : snapshots) {
+                        Boolean hidden = doc.getBoolean("hiddenByUser");
+                        if (Boolean.TRUE.equals(hidden)) continue;
                         Booking booking = doc.toObject(Booking.class);
                         bookings.add(booking);
                     }

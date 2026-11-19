@@ -84,6 +84,7 @@ public class RideTrackingService extends Service {
     private long     lastFirestoreUpdateMs  = 0;
     private long     lastHourlyBillingMs    = 0; // tracks last hourly billing check
     private double   depositPaid            = AutoBillingManager.SECURITY_DEPOSIT;
+    private boolean  proximityCheckEnabled  = false;
 
     private AutoBillingManager autoBillingManager;
 
@@ -185,7 +186,17 @@ public class RideTrackingService extends Service {
         }
 
         // Check if user is near a station → auto-end ride
-        checkStationProximity(newLocation);
+        // Safeguard: only trigger proximity auto-end if ride is active for at least 2 minutes
+        // and user has moved at least 100 meters away from origin
+        long elapsedSinceStart = System.currentTimeMillis() - startTimeMs;
+        if (!proximityCheckEnabled) {
+            if (elapsedSinceStart >= 120_000L && totalDistanceKm >= 0.1) {
+                proximityCheckEnabled = true;
+            }
+        }
+        if (proximityCheckEnabled) {
+            checkStationProximity(newLocation);
+        }
     }
 
     private void updateFirestore(Location location) {

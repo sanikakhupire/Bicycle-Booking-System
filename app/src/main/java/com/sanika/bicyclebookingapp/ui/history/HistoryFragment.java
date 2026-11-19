@@ -65,9 +65,9 @@ public class HistoryFragment extends Fragment {
                 @Override
                 public void onDelete(Booking booking) {
                     new AlertDialog.Builder(requireContext())
-                        .setTitle("Delete Record")
-                        .setMessage("Remove this ride from your history? This cannot be undone.")
-                        .setPositiveButton("Delete", (dialog, which) -> deleteBooking(booking))
+                        .setTitle("Hide Record")
+                        .setMessage("Hide this ride from your history?")
+                        .setPositiveButton("Hide", (dialog, which) -> deleteBooking(booking))
                         .setNegativeButton("Cancel", null)
                         .show();
                 }
@@ -110,21 +110,21 @@ public class HistoryFragment extends Fragment {
     }
 
     /**
-     * Deletes the booking document from Firestore.
-     * Only deletes the record — does NOT affect bicycle availability
-     * since the ride is already completed or cancelled.
+     * Flags the booking document as hiddenByUser in Firestore.
+     * Preserves the official booking record for accounting and admin logs,
+     * while cleanly hiding it from the user's personal history list.
      */
     private void deleteBooking(Booking booking) {
         FirebaseFirestore.getInstance()
             .collection("bookings")
             .document(booking.getBookingId())
-            .delete()
+            .update("hiddenByUser", true)
             .addOnSuccessListener(unused ->
                 Toast.makeText(requireContext(),
-                    "Deleted from history", Toast.LENGTH_SHORT).show())
+                    "Removed from history", Toast.LENGTH_SHORT).show())
             .addOnFailureListener(e ->
                 Toast.makeText(requireContext(),
-                    "Failed to delete: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    "Failed to remove: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     @Override

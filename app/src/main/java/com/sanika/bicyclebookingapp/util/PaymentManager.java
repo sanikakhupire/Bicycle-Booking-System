@@ -8,20 +8,14 @@ import com.razorpay.PaymentResultListener;
 import org.json.JSONObject;
 
 /**
- * Handles Razorpay payment flow.
- *
- * Setup:
- * 1. Create account at https://razorpay.com
- * 2. Get your Key ID from Dashboard → Settings → API Keys
- * 3. Replace YOUR_RAZORPAY_KEY_ID below with your actual key
- *
- * For testing use Razorpay test mode — no real money is charged.
- * Test card: 4111 1111 1111 1111, any future expiry, any CVV
+ * @deprecated Razorpay integration is currently unused; {@link UpiPaymentManager}
+ * is the active payment handler.
  */
+@Deprecated
 public class PaymentManager {
 
-    // Replace with your Razorpay Key ID from dashboard
-    private static final String RAZORPAY_KEY_ID = "rzp_test_SjX95bpNchghj1";
+    // Razorpay Key placeholder (never commit active secrets)
+    private static final String RAZORPAY_KEY_ID = "YOUR_RAZORPAY_KEY_ID";
 
     public interface PaymentCallback {
         void onSuccess(String paymentId);

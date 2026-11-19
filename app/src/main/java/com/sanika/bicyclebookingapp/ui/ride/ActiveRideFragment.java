@@ -83,13 +83,10 @@ public class ActiveRideFragment extends Fragment {
                 .navigate(com.sanika.bicyclebookingapp.R.id.qrScanFragment, returnBundle);
         });
 
-        // Start the foreground tracking service
-        startTrackingService();
-
         // Register broadcast receiver for GPS-based ride end
         registerRideEndedReceiver();
 
-        // Load start time from Firestore and start timer
+        // Load start time from Firestore, then start tracking service and timer
         FirebaseFirestore.getInstance()
             .collection("bookings").document(bookingId)
             .get()
@@ -100,10 +97,12 @@ public class ActiveRideFragment extends Fragment {
                 } else {
                     startTimeMs = System.currentTimeMillis();
                 }
+                startTrackingService();
                 startTimer();
             })
             .addOnFailureListener(e -> {
                 startTimeMs = System.currentTimeMillis();
+                startTrackingService();
                 startTimer();
             });
 

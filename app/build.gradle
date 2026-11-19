@@ -56,8 +56,6 @@ dependencies {
 
     // Glide (image loading)
     implementation libs.glide
-    implementation libs.androidx.navigation.fragment
-    implementation libs.androidx.navigation.ui
     annotationProcessor libs.glide.compiler
 
     // ZXing QR Scanner

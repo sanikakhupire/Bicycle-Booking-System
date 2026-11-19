@@ -20,15 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Tracks user's GPS location during an active ride and stores it in Firestore.
- *
- * Firestore path: bookings/{bookingId}/currentLocation (GeoPoint)
- * Also updates: bicycles/{bicycleId}/lastLocation (GeoPoint)
- *
- * This enables:
- * - Admin to see where each bicycle is in real-time
- * - Theft detection (bicycle moving without active booking)
+ * @deprecated Superseded by {@link com.sanika.bicyclebookingapp.service.RideTrackingService}.
+ * Preserved for historical reference and backward compatibility.
  */
+@Deprecated
 public class LocationTracker {
 
     private final FusedLocationProviderClient fusedClient;

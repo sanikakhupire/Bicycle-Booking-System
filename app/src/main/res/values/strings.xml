@@ -48,6 +48,11 @@
     <string name="admin_panel">Admin Panel</string>
     <string name="add_station">Add Station</string>
     <string name="add_bicycle">Add Bicycle</string>
+
+    <!-- Config / Keys -->
+    <string name="google_maps_key" translatable="false">AIzaSyDWViYwRqppuV6MeAlvYPQ_98Ev-VzBddw</string>
+    <string name="upi_payee_vpa" translatable="false">cyclego@upi</string>
+    <string name="upi_payee_name" translatable="false">CycleGo</string>
     <string name="manage_stations">Manage Stations</string>
     <string name="manage_bicycles">Manage Bicycles</string>
     <string name="active_rides">Active Rides</string>

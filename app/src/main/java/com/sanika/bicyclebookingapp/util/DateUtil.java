@@ -6,33 +6,34 @@ import java.util.Locale;
 
 /**
  * Utility class for date/time formatting.
+ * Uses ThreadLocal to ensure thread-safety of SimpleDateFormat across concurrent calls.
  */
 public class DateUtil {
 
     private DateUtil() {}
 
-    private static final SimpleDateFormat DATE_FORMAT =
-            new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
+            ThreadLocal.withInitial(() -> new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()));
 
-    private static final SimpleDateFormat DATE_TIME_FORMAT =
-            new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
+    private static final ThreadLocal<SimpleDateFormat> DATE_TIME_FORMAT =
+            ThreadLocal.withInitial(() -> new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()));
 
-    private static final SimpleDateFormat TIME_FORMAT =
-            new SimpleDateFormat("hh:mm a", Locale.getDefault());
+    private static final ThreadLocal<SimpleDateFormat> TIME_FORMAT =
+            ThreadLocal.withInitial(() -> new SimpleDateFormat("hh:mm a", Locale.getDefault()));
 
     public static String formatDate(Date date) {
         if (date == null) return "—";
-        return DATE_FORMAT.format(date);
+        return DATE_FORMAT.get().format(date);
     }
 
     public static String formatDateTime(Date date) {
         if (date == null) return "—";
-        return DATE_TIME_FORMAT.format(date);
+        return DATE_TIME_FORMAT.get().format(date);
     }
 
     public static String formatTime(Date date) {
         if (date == null) return "—";
-        return TIME_FORMAT.format(date);
+        return TIME_FORMAT.get().format(date);
     }
 
     /** Returns elapsed time string like "5 min ago" or "2 hrs ago". */
