@@ -56,6 +56,12 @@ public class ProfileFragment extends Fragment {
             Intent intent = new Intent(requireActivity(), AdminActivity.class);
             startActivity(intent);
         });
+
+        // Handler portal button — hidden by default, shown for handlers and admins
+        binding.btnHandlerPortal.setOnClickListener(v -> {
+            Intent intent = new Intent(requireActivity(), com.sanika.bicyclebookingapp.ui.handler.CycleHandlerActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void loadProfile() {
@@ -70,6 +76,10 @@ public class ProfileFragment extends Fragment {
                 // Show admin button only if user is admin
                 isAdmin = resource.data.isAdmin();
                 binding.btnAdminPanel.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
+
+                // Show handler portal button for handlers or admins
+                boolean isHandler = resource.data.isHandler();
+                binding.btnHandlerPortal.setVisibility((isAdmin || isHandler) ? View.VISIBLE : View.GONE);
             }
         });
     }

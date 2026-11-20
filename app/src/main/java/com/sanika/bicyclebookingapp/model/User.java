@@ -6,8 +6,13 @@ import java.util.Date;
 
 /**
  * Represents a registered user in Firestore collection "users".
+ * Supports three roles: USER, ADMIN, and HANDLER (Cycle Handler).
  */
 public class User {
+
+    public static final String ROLE_USER = "USER";
+    public static final String ROLE_ADMIN = "ADMIN";
+    public static final String ROLE_HANDLER = "HANDLER";
 
     @DocumentId
     private String uid;
@@ -16,6 +21,7 @@ public class User {
     private String phone;
     private String profileImageUrl;
     private boolean isAdmin;
+    private String role = ROLE_USER;
 
     @ServerTimestamp
     private Date createdAt;
@@ -29,6 +35,7 @@ public class User {
         this.email = email;
         this.phone = phone;
         this.isAdmin = false;
+        this.role = ROLE_USER;
     }
 
     public String getUid() { return uid; }
@@ -46,8 +53,33 @@ public class User {
     public String getProfileImageUrl() { return profileImageUrl; }
     public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
 
-    public boolean isAdmin() { return isAdmin; }
-    public void setAdmin(boolean admin) { isAdmin = admin; }
+    public boolean isAdmin() {
+        return isAdmin || ROLE_ADMIN.equalsIgnoreCase(role);
+    }
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+        if (admin) {
+            this.role = ROLE_ADMIN;
+        }
+    }
+
+    public String getRole() {
+        if (role == null || role.isEmpty()) {
+            return isAdmin ? ROLE_ADMIN : ROLE_USER;
+        }
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+        if (ROLE_ADMIN.equalsIgnoreCase(role)) {
+            this.isAdmin = true;
+        }
+    }
+
+    public boolean isHandler() {
+        return ROLE_HANDLER.equalsIgnoreCase(role);
+    }
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }

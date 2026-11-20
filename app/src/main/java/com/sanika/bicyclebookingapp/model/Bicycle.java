@@ -12,6 +12,7 @@ public class Bicycle {
     private String stationId;
     private String stationName;
     private boolean isAvailable;
+    private boolean underMaintenance;
     private String qrCode;       // QR code string used to unlock
     private String type;         // e.g., "Standard", "Electric", "Mountain"
     private String imageUrl;
@@ -38,6 +39,9 @@ public class Bicycle {
 
     public boolean isAvailable() { return isAvailable; }
     public void setAvailable(boolean available) { isAvailable = available; }
+
+    public boolean isUnderMaintenance() { return underMaintenance; }
+    public void setUnderMaintenance(boolean underMaintenance) { this.underMaintenance = underMaintenance; }
 
     public String getQrCode() { return qrCode; }
     public void setQrCode(String qrCode) { this.qrCode = qrCode; }

@@ -89,15 +89,23 @@ public class AllRidesHistoryFragment extends Fragment {
             }
 
             List<Booking> bookings = new ArrayList<>();
+            double totalRevenue = 0.0;
             if (snapshots != null) {
                 for (QueryDocumentSnapshot doc : snapshots) {
                     Booking booking = doc.toObject(Booking.class);
                     bookings.add(booking);
+                    if (booking.getFare() > 0) {
+                        totalRevenue += booking.getFare();
+                    }
                 }
             }
 
             adapter.submitList(bookings);
-            binding.tvCount.setText(bookings.size() + " rides");
+            if (totalRevenue > 0) {
+                binding.tvCount.setText(String.format("%d rides | ₹%.0f", bookings.size(), totalRevenue));
+            } else {
+                binding.tvCount.setText(bookings.size() + " rides");
+            }
             binding.tvEmpty.setVisibility(bookings.isEmpty() ? View.VISIBLE : View.GONE);
         });
     }

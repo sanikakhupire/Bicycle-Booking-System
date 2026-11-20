@@ -49,6 +49,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
     private StationAdapter stationAdapter;
+    private final List<Station> allStations = new ArrayList<>();
 
     private final ActivityResultLauncher<String[]> locationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -75,6 +76,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         setupMap();
         setupRecyclerView();
+        setupSearch();
         observeStations();
         checkActiveRide();
     }
@@ -99,6 +101,37 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         binding.rvStations.setAdapter(stationAdapter);
     }
 
+    private void setupSearch() {
+        if (binding.etSearchStation == null) return;
+        binding.etSearchStation.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterStations(s != null ? s.toString() : "");
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
+    }
+
+    private void filterStations(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            stationAdapter.submitList(new ArrayList<>(allStations));
+            return;
+        }
+        String lower = query.trim().toLowerCase();
+        List<Station> filtered = new ArrayList<>();
+        for (Station s : allStations) {
+            if (s.getName() != null && s.getName().toLowerCase().contains(lower)) {
+                filtered.add(s);
+            }
+        }
+        stationAdapter.submitList(filtered);
+    }
+
     private void observeStations() {
         stationViewModel.getAllStations().observe(getViewLifecycleOwner(), resource -> {
             switch (resource.status) {
@@ -108,6 +141,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 case SUCCESS:
                     binding.progressBar.setVisibility(View.GONE);
                     if (resource.data != null) {
+                        allStations.clear();
+                        allStations.addAll(resource.data);
                         stationAdapter.submitList(resource.data);
                         addStationMarkers(resource.data);
                     }

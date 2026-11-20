@@ -53,6 +53,12 @@
             android:name=".ui.admin.AdminActivity"
             android:exported="false" />
 
+        <!-- Cycle Handler Activity -->
+        <activity
+            android:name=".ui.handler.CycleHandlerActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Ride Tracking Foreground Service -->
         <service
             android:name=".service.RideTrackingService"

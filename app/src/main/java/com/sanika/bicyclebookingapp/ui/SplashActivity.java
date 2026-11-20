@@ -10,8 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.sanika.bicyclebookingapp.model.User;
 import com.sanika.bicyclebookingapp.ui.admin.AdminActivity;
 import com.sanika.bicyclebookingapp.ui.auth.AuthActivity;
+import com.sanika.bicyclebookingapp.ui.handler.CycleHandlerActivity;
 import com.sanika.bicyclebookingapp.ui.main.MainActivity;
 
 /**
@@ -19,6 +21,7 @@ import com.sanika.bicyclebookingapp.ui.main.MainActivity;
  * Checks authentication status and routes:
  * - Unauthenticated -> AuthActivity
  * - Admin User -> AdminActivity
+ * - Cycle Handler -> CycleHandlerActivity
  * - Regular User -> MainActivity
  */
 public class SplashActivity extends AppCompatActivity {
@@ -37,16 +40,18 @@ public class SplashActivity extends AppCompatActivity {
                 return;
             }
 
-            // Check if logged-in user is admin
+            // Check role in Firestore
             FirebaseFirestore.getInstance()
                     .collection("users")
                     .document(currentUser.getUid())
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
-                        Boolean isAdmin = documentSnapshot.getBoolean("isAdmin");
+                        User user = documentSnapshot.toObject(User.class);
                         Intent intent;
-                        if (Boolean.TRUE.equals(isAdmin)) {
+                        if (user != null && user.isAdmin()) {
                             intent = new Intent(SplashActivity.this, AdminActivity.class);
+                        } else if (user != null && user.isHandler()) {
+                            intent = new Intent(SplashActivity.this, CycleHandlerActivity.class);
                         } else {
                             intent = new Intent(SplashActivity.this, MainActivity.class);
                         }
