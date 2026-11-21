@@ -43,6 +43,9 @@ public class Station {
     public int getTotalBicycles() { return totalBicycles; }
     public void setTotalBicycles(int totalBicycles) { this.totalBicycles = totalBicycles; }
 
+    public int getTotalCapacity() { return totalBicycles; }
+    public void setTotalCapacity(int totalCapacity) { this.totalBicycles = totalCapacity; }
+
     public int getAvailableBicycles() { return availableBicycles; }
     public void setAvailableBicycles(int availableBicycles) { this.availableBicycles = availableBicycles; }
 

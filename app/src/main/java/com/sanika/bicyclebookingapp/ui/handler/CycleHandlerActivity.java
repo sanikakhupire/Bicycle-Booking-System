@@ -131,7 +131,7 @@ public class CycleHandlerActivity extends AppCompatActivity {
     private void updateStationInfo(Station station) {
         if (station == null) return;
         binding.tvAvailableCount.setText("Available: " + station.getAvailableBicycles());
-        binding.tvCapacityCount.setText("Capacity: " + station.getTotalCapacity());
+        binding.tvCapacityCount.setText("Capacity: " + station.getTotalBicycles());
     }
 
     private void loadStationFleet(String stationId) {
