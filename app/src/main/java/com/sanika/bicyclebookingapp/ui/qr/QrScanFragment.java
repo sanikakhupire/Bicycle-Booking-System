@@ -51,6 +51,7 @@ public class QrScanFragment extends Fragment {
     private String stationId;
     private String scanMode;
     private boolean scanned = false;
+    private android.os.CountDownTimer countDownTimer;
 
     private final ActivityResultLauncher<String> cameraPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
@@ -82,15 +83,22 @@ public class QrScanFragment extends Fragment {
             binding.tvScanInstruction.setText(
                 "Scan the QR code at the station to return your bicycle and end the ride");
             binding.tvScanTitle.setText("Return Bicycle");
+            binding.cardTimer.setVisibility(View.GONE);
+            binding.tvBicycleInfo.setVisibility(View.GONE);
         } else {
             binding.tvScanInstruction.setText(
                 "Scan the QR code on the bicycle to unlock and start your ride");
             binding.tvScanTitle.setText("Unlock Bicycle");
+            String shortId = expectedBicycleId != null && expectedBicycleId.length() >= 8
+                    ? expectedBicycleId.substring(0, 8).toUpperCase()
+                    : (expectedBicycleId != null ? expectedBicycleId : "—");
+            binding.tvBicycleInfo.setText("Reserved Bicycle: #" + shortId);
+            setupReservationTimer();
         }
 
         binding.ivBack.setOnClickListener(v -> requireActivity().onBackPressed());
         binding.btnManualEntry.setOnClickListener(v -> showManualEntry());
-        binding.btnCancelBooking.setOnClickListener(v -> cancelBooking());
+        binding.btnCancelBooking.setOnClickListener(v -> confirmCancelBooking());
 
         // Hide cancel button in RETURN mode
         binding.btnCancelBooking.setVisibility(
@@ -244,12 +252,94 @@ public class QrScanFragment extends Fragment {
         requireContext().startForegroundService(serviceIntent);
     }
 
+    private void setupReservationTimer() {
+        if (bookingId == null) return;
+        com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            .collection("bookings").document(bookingId)
+            .get()
+            .addOnSuccessListener(snap -> {
+                if (!isAdded() || binding == null || snap == null || !snap.exists()) return;
+                java.util.Date expiresAt = snap.getDate("expiresAt");
+                java.util.Date createdAt = snap.getDate("createdAt");
+
+                long expiryMs;
+                if (expiresAt != null) {
+                    expiryMs = expiresAt.getTime();
+                } else if (createdAt != null) {
+                    expiryMs = createdAt.getTime() + 10 * 60 * 1000;
+                } else {
+                    expiryMs = System.currentTimeMillis() + 10 * 60 * 1000;
+                }
+
+                long remainingMs = expiryMs - System.currentTimeMillis();
+                if (remainingMs <= 0) {
+                    handleReservationExpired();
+                    return;
+                }
+
+                if (countDownTimer != null) {
+                    countDownTimer.cancel();
+                }
+
+                countDownTimer = new android.os.CountDownTimer(remainingMs, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        if (binding == null) return;
+                        long minutes = millisUntilFinished / 60000;
+                        long seconds = (millisUntilFinished % 60000) / 1000;
+                        binding.tvTimer.setText(String.format("Hold expires in: %02d:%02d", minutes, seconds));
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        if (binding != null) {
+                            binding.tvTimer.setText("Reservation Expired");
+                        }
+                        handleReservationExpired();
+                    }
+                }.start();
+            });
+    }
+
+    private void handleReservationExpired() {
+        if (!isAdded()) return;
+        bookingViewModel.expireBooking(bookingId, expectedBicycleId, stationId != null ? stationId : "");
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Reservation Expired")
+            .setMessage("Your 10-minute hold has elapsed. The bicycle has been released back to station inventory.")
+            .setCancelable(false)
+            .setPositiveButton("OK", (dialog, which) -> {
+                if (isAdded()) {
+                    requireActivity().onBackPressed();
+                }
+            })
+            .show();
+    }
+
+    private void confirmCancelBooking() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Cancel Reservation")
+            .setMessage("Are you sure you want to cancel this booking?\n\nCancellation Policy:\n• Free cancellation before unlocking the bicycle.\n• The bicycle will immediately be returned to station inventory.")
+            .setPositiveButton("Yes, Cancel", (dialog, which) -> cancelBooking())
+            .setNegativeButton("Keep Reservation", null)
+            .show();
+    }
+
     private void cancelBooking() {
+        setLoading(true);
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
         bookingViewModel.cancelBooking(bookingId, expectedBicycleId,
                 stationId != null ? stationId : "")
             .observe(getViewLifecycleOwner(), resource -> {
+                setLoading(false);
                 if (resource.isSuccess()) {
+                    android.widget.Toast.makeText(requireContext(),
+                        "Booking cancelled. Bicycle returned to station.", android.widget.Toast.LENGTH_SHORT).show();
                     requireActivity().onBackPressed();
+                } else if (resource.isError()) {
+                    showError("Cancellation failed: " + resource.message);
                 }
             });
     }
@@ -308,6 +398,10 @@ public class QrScanFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+            countDownTimer = null;
+        }
         super.onDestroyView();
         binding = null;
     }

@@ -60,16 +60,17 @@ public class BookingConfirmFragment extends Fragment {
 
         bookingViewModel = new ViewModelProvider(this).get(BookingViewModel.class);
 
-        // Populate UI
-        binding.tvBicycleId.setText("Bicycle: " + bicycleId.substring(0, 8).toUpperCase());
-        binding.tvStation.setText("Station: " + stationName);
-        binding.tvRate.setText("Fare: ₹5 base + ₹8/km + ₹1/min");
+        String previewId = "BK-" + (bicycleId.length() >= 6 ? bicycleId.substring(0, 6).toUpperCase() : bicycleId.toUpperCase());
+        binding.tvBookingRef.setText("Reference: " + previewId);
+        binding.tvBicycleId.setText("Bicycle: #" + (bicycleId.length() >= 8 ? bicycleId.substring(0, 8).toUpperCase() : bicycleId.toUpperCase()));
+        binding.tvStation.setText("Pickup Station: " + stationName);
+        binding.tvRate.setText("• Base Unlock Fee: ₹5.00\n• Per-Minute Charge: ₹1.00 / min\n• Per-KM Charge: ₹8.00 / km\n• Minimum Fare: ₹10.00");
         binding.tvDeposit.setText("Security Deposit: ₹"
             + (int) AutoBillingManager.SECURITY_DEPOSIT
-            + " (adjusted against final fare on return)");
+            + " (Refundable / Adjusted on return)");
 
         binding.btnConfirmBooking.setText("Pay ₹"
-            + (int) AutoBillingManager.SECURITY_DEPOSIT + " Deposit & Book");
+            + (int) AutoBillingManager.SECURITY_DEPOSIT + " Deposit & Reserve (10m Hold)");
 
         binding.ivBack.setOnClickListener(v -> requireActivity().onBackPressed());
 
@@ -96,7 +97,7 @@ public class BookingConfirmFragment extends Fragment {
 
         binding.btnConfirmBooking.setOnClickListener(v -> {
             if (!depositPaid) {
-                // Step 1: Collect deposit via UPI
+                // Step 1: Collect deposit via UPI or test fallback
                 collectDeposit();
             } else {
                 // Already paid — proceed directly
@@ -107,17 +108,37 @@ public class BookingConfirmFragment extends Fragment {
 
     /**
      * Opens UPI to collect ₹100 security deposit.
+     * Provides test mode fallback when running on emulator or non-UPI device.
      */
     private void collectDeposit() {
         setLoading(true);
         binding.tvError.setVisibility(View.GONE);
 
-        UpiPaymentManager.startUpiPayment(
-            requireActivity(),
-            AutoBillingManager.SECURITY_DEPOSIT,
-            "DEP_" + bicycleId.substring(0, 8),
-            "CycleGo security deposit"
-        );
+        android.content.Intent upiIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW,
+                android.net.Uri.parse("upi://pay"));
+        java.util.List<android.content.pm.ResolveInfo> apps =
+                requireActivity().getPackageManager().queryIntentActivities(upiIntent, 0);
+
+        if (apps != null && !apps.isEmpty()) {
+            UpiPaymentManager.startUpiPayment(
+                requireActivity(),
+                AutoBillingManager.SECURITY_DEPOSIT,
+                "DEP_" + (bicycleId.length() >= 8 ? bicycleId.substring(0, 8) : bicycleId),
+                "CycleGo security deposit"
+            );
+        } else {
+            // No UPI app found (e.g. Emulator / development device)
+            setLoading(false);
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("UPI App Not Detected")
+                .setMessage("No Indian UPI app (GPay/PhonePe/Paytm) was found on this device.\n\nWould you like to simulate ₹100 test deposit to verify the booking flow?")
+                .setPositiveButton("Simulate ₹100 Deposit", (dialog, which) -> {
+                    depositPaid = true;
+                    proceedWithBooking("SIM_TEST_" + System.currentTimeMillis());
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+        }
     }
 
     /**

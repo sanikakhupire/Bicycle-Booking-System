@@ -19,6 +19,10 @@
         <action
             android:id="@+id/action_home_to_activeRide"
             app:destination="@id/activeRideFragment" />
+
+        <action
+            android:id="@+id/action_home_to_qrScan"
+            app:destination="@id/qrScanFragment" />
     </fragment>
 
     <!-- Station Detail -->

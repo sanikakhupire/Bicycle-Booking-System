@@ -23,6 +23,8 @@ public class Booking {
     private String bicycleId;
     private String stationId;
     private String stationName;
+    private String returnStationId;
+    private String returnStationName;
     private String status;
 
     @ServerTimestamp
@@ -60,6 +62,12 @@ public class Booking {
 
     public String getStationName() { return stationName; }
     public void setStationName(String stationName) { this.stationName = stationName; }
+
+    public String getReturnStationId() { return returnStationId; }
+    public void setReturnStationId(String returnStationId) { this.returnStationId = returnStationId; }
+
+    public String getReturnStationName() { return returnStationName; }
+    public void setReturnStationName(String returnStationName) { this.returnStationName = returnStationName; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

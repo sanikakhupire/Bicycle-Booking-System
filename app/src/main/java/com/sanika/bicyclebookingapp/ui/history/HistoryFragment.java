@@ -71,6 +71,11 @@ public class HistoryFragment extends Fragment {
                         .setNegativeButton("Cancel", null)
                         .show();
                 }
+
+                @Override
+                public void onItemClick(Booking booking) {
+                    showBookingDetails(booking);
+                }
             }
         );
 
@@ -125,6 +130,86 @@ public class HistoryFragment extends Fragment {
             .addOnFailureListener(e ->
                 Toast.makeText(requireContext(),
                     "Failed to remove: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void showBookingDetails(Booking booking) {
+        String shortId = booking.getBookingId() != null && booking.getBookingId().length() >= 8
+                ? booking.getBookingId().substring(0, 8).toUpperCase()
+                : (booking.getBookingId() != null ? booking.getBookingId() : "—");
+        String formattedRef = "BK-" + shortId;
+
+        String bikeId = booking.getBicycleId() != null && booking.getBicycleId().length() >= 8
+                ? booking.getBicycleId().substring(0, 8).toUpperCase()
+                : (booking.getBicycleId() != null ? booking.getBicycleId() : "—");
+
+        String returnStation = booking.getReturnStationName() != null && !booking.getReturnStationName().isEmpty()
+                ? booking.getReturnStationName()
+                : (Booking.STATUS_ACTIVE.equalsIgnoreCase(booking.getStatus()) ? "In transit" : "—");
+
+        String startTimeStr = booking.getStartTime() != null
+                ? com.sanika.bicyclebookingapp.util.DateUtil.formatDateTime(booking.getStartTime())
+                : (Booking.STATUS_PENDING.equalsIgnoreCase(booking.getStatus()) ? "Reserved (Pending Unlock)" : "—");
+
+        String endTimeStr = booking.getEndTime() != null
+                ? com.sanika.bicyclebookingapp.util.DateUtil.formatDateTime(booking.getEndTime())
+                : "—";
+
+        String details = String.format(
+            "Booking Reference: %s\nStatus: %s\n\nBicycle: #%s\nPickup Station: %s\nReturn Station: %s\n\nBooked At: %s\nStarted: %s\nEnded: %s\n\nDuration: %s\nDistance: %.2f km\n\nFinal Fare: %s\nSecurity Deposit: ₹100.00",
+            formattedRef,
+            booking.getStatus(),
+            bikeId,
+            booking.getStationName() != null ? booking.getStationName() : "Station",
+            returnStation,
+            booking.getCreatedAt() != null ? com.sanika.bicyclebookingapp.util.DateUtil.formatDateTime(booking.getCreatedAt()) : "—",
+            startTimeStr,
+            endTimeStr,
+            com.sanika.bicyclebookingapp.util.ValidationUtil.formatDuration(booking.getDurationMinutes()),
+            booking.getDistanceKm(),
+            com.sanika.bicyclebookingapp.util.ValidationUtil.formatFare(booking.getFare())
+        );
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
+            .setTitle("Booking " + formattedRef)
+            .setMessage(details);
+
+        if (Booking.STATUS_PENDING.equalsIgnoreCase(booking.getStatus())) {
+            builder.setPositiveButton("Scan & Unlock", (dialog, which) -> {
+                Bundle args = new Bundle();
+                args.putString("bookingId", booking.getBookingId());
+                args.putString("bicycleId", booking.getBicycleId());
+                args.putString("stationId", booking.getStationId());
+                args.putString("mode", "UNLOCK");
+                androidx.navigation.Navigation.findNavController(requireView())
+                        .navigate(com.sanika.bicyclebookingapp.R.id.qrScanFragment, args);
+            });
+            builder.setNegativeButton("Cancel Reservation", (dialog, which) -> {
+                bookingViewModel.cancelBooking(
+                    booking.getBookingId(),
+                    booking.getBicycleId(),
+                    booking.getStationId()
+                ).observe(getViewLifecycleOwner(), resource -> {
+                    if (resource.isSuccess()) {
+                        Toast.makeText(requireContext(), "Reservation cancelled", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
+            builder.setNeutralButton("Close", null);
+        } else if (Booking.STATUS_ACTIVE.equalsIgnoreCase(booking.getStatus())) {
+            builder.setPositiveButton("View Active Ride", (dialog, which) -> {
+                Bundle args = new Bundle();
+                args.putString("bookingId", booking.getBookingId());
+                args.putString("bicycleId", booking.getBicycleId());
+                args.putString("stationId", booking.getStationId() != null ? booking.getStationId() : "");
+                androidx.navigation.Navigation.findNavController(requireView())
+                        .navigate(com.sanika.bicyclebookingapp.R.id.activeRideFragment, args);
+            });
+            builder.setNegativeButton("Close", null);
+        } else {
+            builder.setPositiveButton("Close", null);
+        }
+
+        builder.show();
     }
 
     @Override

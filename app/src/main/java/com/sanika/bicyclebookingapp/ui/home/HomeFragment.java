@@ -159,17 +159,32 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         if (uid == null) return;
 
         bookingViewModel.getActiveBooking(uid).observe(getViewLifecycleOwner(), resource -> {
+            if (binding == null) return;
             if (resource.isSuccess() && resource.data != null) {
                 Booking booking = resource.data;
                 binding.cardActiveRide.setVisibility(View.VISIBLE);
-                binding.tvActiveRideStatus.setText("Active Ride: " + booking.getStationName());
+
+                boolean isPending = Booking.STATUS_PENDING.equalsIgnoreCase(booking.getStatus());
+                if (isPending) {
+                    binding.tvActiveRideStatus.setText("Reserved at " + booking.getStationName() + " — Tap to Scan & Unlock");
+                } else {
+                    binding.tvActiveRideStatus.setText("Active Ride: " + booking.getStationName() + " — Tap to View Tracker");
+                }
+
                 binding.cardActiveRide.setOnClickListener(v -> {
                     Bundle args = new Bundle();
                     args.putString("bookingId", booking.getBookingId());
                     args.putString("bicycleId", booking.getBicycleId());
                     args.putString("stationId", booking.getStationId() != null ? booking.getStationId() : "");
-                    Navigation.findNavController(requireView())
-                            .navigate(R.id.action_home_to_activeRide, args);
+
+                    if (isPending) {
+                        args.putString("mode", "UNLOCK");
+                        Navigation.findNavController(requireView())
+                                .navigate(R.id.action_home_to_qrScan, args);
+                    } else {
+                        Navigation.findNavController(requireView())
+                                .navigate(R.id.action_home_to_activeRide, args);
+                    }
                 });
             } else {
                 binding.cardActiveRide.setVisibility(View.GONE);
@@ -223,21 +238,21 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     .snippet(station.getAvailableBicycles() + " bicycles available")
                     .icon(BitmapDescriptorFactory.defaultMarker(
                             station.getAvailableBicycles() > 0
-                                    ? BitmapDescriptorFactory.HUE_GREEN
+                                     ? BitmapDescriptorFactory.HUE_GREEN
                                     : BitmapDescriptorFactory.HUE_RED));
-            googleMap.addMarker(markerOptions);
+            com.google.android.gms.maps.model.Marker marker = googleMap.addMarker(markerOptions);
+            if (marker != null) {
+                marker.setTag(station.getStationId());
+            }
         }
 
-        // Click on marker → navigate to station detail
+        // Click on marker info window → navigate to station detail using tag
         googleMap.setOnInfoWindowClickListener(marker -> {
-            // Find station by title
-            for (Station station : stations) {
-                if (station.getName().equals(marker.getTitle())) {
-                    HomeFragmentDirections.ActionHomeToStationDetail action =
-                            HomeFragmentDirections.actionHomeToStationDetail(station.getStationId());
-                    Navigation.findNavController(requireView()).navigate(action);
-                    break;
-                }
+            String targetStationId = (String) marker.getTag();
+            if (targetStationId != null) {
+                HomeFragmentDirections.ActionHomeToStationDetail action =
+                        HomeFragmentDirections.actionHomeToStationDetail(targetStationId);
+                Navigation.findNavController(requireView()).navigate(action);
             }
         });
     }

@@ -24,7 +24,8 @@ public class BookingHistoryAdapter extends ListAdapter<Booking, BookingHistoryAd
 
     public interface OnActionListener {
         void onCancel(Booking booking);   // for PENDING
-        void onDelete(Booking booking);   // for COMPLETED / CANCELLED
+        void onDelete(Booking booking);   // for COMPLETED / CANCELLED / EXPIRED
+        void onItemClick(Booking booking);// view full booking details
     }
 
     private final OnActionListener actionListener;
@@ -84,25 +85,22 @@ public class BookingHistoryAdapter extends ListAdapter<Booking, BookingHistoryAd
 
             // Status color
             int color;
-            switch (booking.getStatus()) {
-                case Booking.STATUS_COMPLETED:
-                    color = binding.getRoot().getContext().getColor(R.color.colorCompleted);
-                    break;
-                case Booking.STATUS_ACTIVE:
-                    color = binding.getRoot().getContext().getColor(R.color.colorAvailable);
-                    break;
-                case Booking.STATUS_CANCELLED:
-                    color = binding.getRoot().getContext().getColor(R.color.colorUnavailable);
-                    break;
-                default:
-                    color = binding.getRoot().getContext().getColor(R.color.colorPending);
-                    break;
+            if (Booking.STATUS_COMPLETED.equalsIgnoreCase(booking.getStatus())) {
+                color = binding.getRoot().getContext().getColor(R.color.colorCompleted);
+            } else if (Booking.STATUS_ACTIVE.equalsIgnoreCase(booking.getStatus())) {
+                color = binding.getRoot().getContext().getColor(R.color.colorAvailable);
+            } else if (Booking.STATUS_CANCELLED.equalsIgnoreCase(booking.getStatus())
+                    || Booking.STATUS_EXPIRED.equalsIgnoreCase(booking.getStatus())) {
+                color = binding.getRoot().getContext().getColor(R.color.colorUnavailable);
+            } else {
+                color = binding.getRoot().getContext().getColor(R.color.colorPending);
             }
             binding.tvStatus.setTextColor(color);
 
-            boolean isPending   = Booking.STATUS_PENDING.equals(booking.getStatus());
-            boolean isCompleted = Booking.STATUS_COMPLETED.equals(booking.getStatus());
-            boolean isCancelled = Booking.STATUS_CANCELLED.equals(booking.getStatus());
+            boolean isPending   = Booking.STATUS_PENDING.equalsIgnoreCase(booking.getStatus());
+            boolean isCompleted = Booking.STATUS_COMPLETED.equalsIgnoreCase(booking.getStatus());
+            boolean isCancelled = Booking.STATUS_CANCELLED.equalsIgnoreCase(booking.getStatus());
+            boolean isExpired   = Booking.STATUS_EXPIRED.equalsIgnoreCase(booking.getStatus());
 
             // Cancel button — only for PENDING
             binding.btnCancelBooking.setVisibility(
@@ -111,11 +109,15 @@ public class BookingHistoryAdapter extends ListAdapter<Booking, BookingHistoryAd
                 if (listener != null) listener.onCancel(booking);
             });
 
-            // Delete button — only for COMPLETED or CANCELLED
+            // Delete button — for COMPLETED, CANCELLED, or EXPIRED
             binding.btnDeleteHistory.setVisibility(
-                    (isCompleted || isCancelled) && listener != null ? View.VISIBLE : View.GONE);
+                    (isCompleted || isCancelled || isExpired) && listener != null ? View.VISIBLE : View.GONE);
             binding.btnDeleteHistory.setOnClickListener(v -> {
                 if (listener != null) listener.onDelete(booking);
+            });
+
+            binding.getRoot().setOnClickListener(v -> {
+                if (listener != null) listener.onItemClick(booking);
             });
         }
     }
