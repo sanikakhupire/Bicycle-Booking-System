@@ -132,15 +132,21 @@ public class BicycleRepository {
         MutableLiveData<Resource<String>> result = new MutableLiveData<>();
         result.setValue(Resource.loading(null));
 
+        // Ensure status consistency
+        if (bicycle.getStatus() == null || bicycle.getStatus().isEmpty()) {
+            bicycle.setStatus(Bicycle.STATUS_AVAILABLE);
+        }
+        bicycle.setAvailable(Bicycle.STATUS_AVAILABLE.equalsIgnoreCase(bicycle.getStatus()));
+
         db.collection(BICYCLES_COLLECTION)
             .add(bicycle)
             .addOnSuccessListener(ref -> {
                 String docId = ref.getId();
-                // Set qrCode = document ID
-                ref.update("qrCode", docId);
+                // Set qrCode = document ID and ensure status field is saved
+                ref.update("qrCode", docId, "status", bicycle.getStatus(), "available", bicycle.isAvailable());
 
-                // Increment station's availableBicycles count
-                if (bicycle.getStationId() != null) {
+                // Increment station's availableBicycles count if available
+                if (bicycle.getStationId() != null && bicycle.isAvailable()) {
                     db.collection("stations").document(bicycle.getStationId())
                         .update("availableBicycles",
                                 com.google.firebase.firestore.FieldValue.increment(1));
@@ -154,25 +160,42 @@ public class BicycleRepository {
     }
 
     /**
-     * Update bicycle availability. Also syncs station availableBicycles count.
+     * Update bicycle availability. Also syncs status and station availableBicycles count.
      */
     public LiveData<Resource<Void>> updateAvailability(String bicycleId, boolean isAvailable) {
+        String newStatus = isAvailable ? Bicycle.STATUS_AVAILABLE : Bicycle.STATUS_IN_USE;
+        return updateBicycleStatus(bicycleId, newStatus);
+    }
+
+    /**
+     * Update bicycle status with atomic station count synchronization.
+     * Supported: AVAILABLE, RESERVED, IN_USE, MAINTENANCE, DAMAGED, INACTIVE.
+     */
+    public LiveData<Resource<Void>> updateBicycleStatus(String bicycleId, String newStatus) {
         MutableLiveData<Resource<Void>> result = new MutableLiveData<>();
         result.setValue(Resource.loading(null));
 
-        // Read current state first to know if count needs changing
+        boolean willBeAvailable = Bicycle.STATUS_AVAILABLE.equalsIgnoreCase(newStatus);
+        boolean underMaintenance = Bicycle.STATUS_MAINTENANCE.equalsIgnoreCase(newStatus)
+                || Bicycle.STATUS_DAMAGED.equalsIgnoreCase(newStatus);
+
         db.collection(BICYCLES_COLLECTION).document(bicycleId)
             .get()
             .addOnSuccessListener(snapshot -> {
                 Bicycle bicycle = snapshot.toObject(Bicycle.class);
                 boolean wasAvailable = bicycle != null && bicycle.isAvailable();
 
-                snapshot.getReference().update("available", isAvailable)
+                java.util.Map<String, Object> updates = new java.util.HashMap<>();
+                updates.put("status", newStatus);
+                updates.put("available", willBeAvailable);
+                updates.put("underMaintenance", underMaintenance);
+
+                snapshot.getReference().update(updates)
                     .addOnSuccessListener(unused -> {
-                        // Sync station count only if state actually changed
+                        // Sync station count only if availability state changed
                         if (bicycle != null && bicycle.getStationId() != null
-                                && wasAvailable != isAvailable) {
-                            long delta = isAvailable ? 1 : -1;
+                                && wasAvailable != willBeAvailable) {
+                            long delta = willBeAvailable ? 1 : -1;
                             db.collection("stations").document(bicycle.getStationId())
                                 .update("availableBicycles",
                                         com.google.firebase.firestore.FieldValue.increment(delta));

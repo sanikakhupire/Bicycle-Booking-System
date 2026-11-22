@@ -48,4 +48,8 @@ public class BookingViewModel extends ViewModel {
     public LiveData<Resource<Void>> cancelBooking(String bookingId, String bicycleId, String stationId) {
         return bookingRepository.cancelBooking(bookingId, bicycleId, stationId);
     }
+
+    public LiveData<Resource<Void>> expireBooking(String bookingId, String bicycleId, String stationId) {
+        return bookingRepository.expireBooking(bookingId, bicycleId, stationId);
+    }
 }

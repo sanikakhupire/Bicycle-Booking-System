@@ -74,14 +74,39 @@ public class AdminBicycleAdapter extends ListAdapter<Bicycle, AdminBicycleAdapte
             binding.tvType.setText(bicycle.getType() != null ? bicycle.getType() : "Standard");
             binding.tvStation.setText(bicycle.getStationName() != null ? bicycle.getStationName() : "—");
 
-            boolean available = bicycle.isAvailable();
-            binding.tvStatus.setText(available ? "Available" : "In Use");
-            int color = available
-                    ? binding.getRoot().getContext().getColor(R.color.colorAvailable)
-                    : binding.getRoot().getContext().getColor(R.color.colorUnavailable);
+            String status = bicycle.getStatus();
+            int color;
+            String statusDisplay;
+            if (Bicycle.STATUS_AVAILABLE.equalsIgnoreCase(status)) {
+                statusDisplay = "Available";
+                color = binding.getRoot().getContext().getColor(R.color.colorAvailable);
+            } else if (Bicycle.STATUS_RESERVED.equalsIgnoreCase(status)) {
+                statusDisplay = "Reserved (10m Hold)";
+                color = binding.getRoot().getContext().getColor(R.color.colorAccent);
+            } else if (Bicycle.STATUS_IN_USE.equalsIgnoreCase(status)) {
+                statusDisplay = "In Active Ride";
+                color = binding.getRoot().getContext().getColor(R.color.colorAccent);
+            } else if (Bicycle.STATUS_MAINTENANCE.equalsIgnoreCase(status)) {
+                statusDisplay = "Under Maintenance";
+                color = binding.getRoot().getContext().getColor(R.color.colorUnavailable);
+            } else if (Bicycle.STATUS_DAMAGED.equalsIgnoreCase(status)) {
+                statusDisplay = "Damaged";
+                color = binding.getRoot().getContext().getColor(R.color.colorUnavailable);
+            } else if (Bicycle.STATUS_INACTIVE.equalsIgnoreCase(status)) {
+                statusDisplay = "Inactive";
+                color = binding.getRoot().getContext().getColor(R.color.colorUnavailable);
+            } else {
+                statusDisplay = bicycle.isAvailable() ? "Available" : "Unavailable";
+                color = bicycle.isAvailable()
+                        ? binding.getRoot().getContext().getColor(R.color.colorAvailable)
+                        : binding.getRoot().getContext().getColor(R.color.colorUnavailable);
+            }
+
+            binding.tvStatus.setText(statusDisplay);
             binding.tvStatus.setTextColor(color);
 
-            binding.btnToggle.setText(available ? "Mark In Use" : "Mark Available");
+            boolean isAvail = bicycle.isAvailable();
+            binding.btnToggle.setText(isAvail ? "Mark Inactive" : "Mark Available");
             binding.btnToggle.setOnClickListener(v -> toggleListener.onToggle(bicycle));
             binding.btnDelete.setOnClickListener(v -> deleteListener.onDelete(bicycle));
 

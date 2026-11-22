@@ -65,10 +65,11 @@ public class SignupFragment extends Fragment {
         binding.tilEmail.setError(null);
 
         if (!ValidationUtil.isValidPhone(phone)) {
-            binding.tilPhone.setError("Enter a valid phone number");
+            binding.tilPhone.setError("Enter a valid 10-digit Indian mobile number");
             return;
         }
         binding.tilPhone.setError(null);
+        phone = ValidationUtil.normalizeIndianPhone(phone);
 
         if (!ValidationUtil.isValidPassword(password)) {
             binding.tilPassword.setError(getString(R.string.error_short_password));

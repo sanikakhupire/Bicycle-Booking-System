@@ -8,64 +8,104 @@ service cloud.firestore {
     }
 
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
     function isAdmin() {
       return isAuthenticated() &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+             (getUserData().isAdmin == true || getUserData().role == 'ADMIN');
+    }
+
+    function isHandler() {
+      return isAuthenticated() &&
+             (getUserData().role == 'HANDLER' || isAdmin());
     }
 
     // ─── users ───────────────────────────────────────────────────────────────
-    // Users can read/write only their own document.
-    // Admins can read all user documents.
+    // Regular users can read and edit only their own document.
+    // Privileged fields (isAdmin, role) CANNOT be set or modified by regular users.
+    // Admins have full access.
     match /users/{userId} {
-      allow read:   if isOwner(userId) || isAdmin();
-      allow create: if isAuthenticated() && isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      allow read:   if isOwner(userId) || isHandler() || isAdmin();
+      
+      // Prevent privilege escalation on registration
+      allow create: if isOwner(userId) &&
+                       (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false) &&
+                       (!('role' in request.resource.data) || request.resource.data.role == 'USER');
+      
+      // Regular user cannot change their own isAdmin, role, uid, or email
+      allow update: if isAdmin() ||
+                       (isOwner(userId) &&
+                        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin', 'role', 'uid', 'email']));
+      
       allow delete: if isAdmin();
     }
 
     // ─── stations ────────────────────────────────────────────────────────────
     // Anyone authenticated can read stations.
-    // Only admins can write (create/update/delete).
+    // Admins can manage all station data.
+    // Regular users can only update availableBicycles count during booking/return transactions.
     match /stations/{stationId} {
       allow read:   if isAuthenticated();
-      allow write:  if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin() ||
+                       (isAuthenticated() &&
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['availableBicycles']));
+      allow delete: if isAdmin();
     }
 
     // ─── bicycles ────────────────────────────────────────────────────────────
     // Anyone authenticated can read bicycles.
-    // Admins can create/delete. Authenticated users can update availability
-    // (needed for booking transactions).
+    // Admins have full CRUD. Handlers can update maintenance and station allocations.
+    // Authenticated users can only update availability, status, and location during transactions.
+    // Core properties (bicycleId, qrCode, type, imageUrl) are protected from customer modification.
     match /bicycles/{bicycleId} {
       allow read:   if isAuthenticated();
       allow create: if isAdmin();
-      allow update: if isAuthenticated(); // booking transaction updates availability
+      allow update: if isAdmin() || isHandler() ||
+                       (isAuthenticated() &&
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+                          ['available', 'status', 'stationId', 'stationName', 'lastLocation', 'lastLocationTime', 'suspectedTheft']
+                        ));
       allow delete: if isAdmin();
     }
 
     // ─── bookings ────────────────────────────────────────────────────────────
-    // Users can read/create their own bookings.
-    // Users can update their own bookings (start/end ride).
-    // Admins can read all bookings.
+    // Users can read their own bookings. Admins and Handlers can read all bookings.
+    // Create: Users can only create their own booking, with initial status 'PENDING'.
+    // Update: Owner can update ride tracking fields, but CANNOT reassign ownership or bicycleId.
+    // Delete: Strictly restricted to Admin to protect financial audit trails.
     match /bookings/{bookingId} {
       allow read:   if isAuthenticated() &&
-                       (resource.data.userId == request.auth.uid || isAdmin());
+                       (resource.data.userId == request.auth.uid || isHandler() || isAdmin());
+      
       allow create: if isAuthenticated() &&
-                       request.resource.data.userId == request.auth.uid;
-      allow update: if isAuthenticated() &&
-                       (resource.data.userId == request.auth.uid || isAdmin());
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.status == 'PENDING';
+      
+      allow update: if isAdmin() || isHandler() ||
+                       (isAuthenticated() &&
+                        resource.data.userId == request.auth.uid &&
+                        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['userId', 'bicycleId', 'createdAt']));
+      
       allow delete: if isAdmin();
     }
 
     // ─── payments ────────────────────────────────────────────────────────────
-    // Users can read their own payments.
-    // Payments are created by Cloud Functions (server-side) or by the user.
+    // Users can read only their own payments. Admins can read all.
+    // Payments must belong to the authenticated user.
+    // Deletion and updates are restricted to Admins.
     match /payments/{paymentId} {
       allow read:   if isAuthenticated() &&
                        (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated();
+      
+      allow create: if isAuthenticated() &&
+                       (request.resource.data.userId == request.auth.uid || !('userId' in request.resource.data));
+      
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }

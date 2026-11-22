@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.sanika.bicyclebookingapp.model.Bicycle;
 import com.sanika.bicyclebookingapp.model.Booking;
 import com.sanika.bicyclebookingapp.model.Payment;
 import com.sanika.bicyclebookingapp.util.Resource;
@@ -44,61 +45,159 @@ public class BookingRepository {
 
     /**
      * Create a booking and mark bicycle as unavailable — all in a Firestore transaction.
+     * Prevents duplicate/simultaneous active or pending bookings for the same user.
+     * Enforces single-bicycle reservation with 10-minute hold expiry.
      */
     public LiveData<Resource<Booking>> createBooking(String userId, String bicycleId,
                                                       String stationId, String stationName) {
         MutableLiveData<Resource<Booking>> result = new MutableLiveData<>();
         result.setValue(Resource.loading(null));
 
-        db.runTransaction(transaction -> {
-            // Read bicycle document
-            var bicycleRef = db.collection(BICYCLES_COLLECTION).document(bicycleId);
-            var bicycleSnap = transaction.get(bicycleRef);
+        // 1. Guard against simultaneous active/pending bookings by the same user
+        db.collection(BOOKINGS_COLLECTION)
+            .whereEqualTo("userId", userId)
+            .whereIn("status", List.of(Booking.STATUS_PENDING, Booking.STATUS_ACTIVE))
+            .get()
+            .addOnSuccessListener(querySnapshots -> {
+                Booking existingExpiredPending = null;
+                boolean hasLiveBooking = false;
 
-            Boolean available = bicycleSnap.getBoolean("available");
-            if (available == null || !available) {
-                // Use RuntimeException so it doesn't require a 'throws' declaration
-                throw new RuntimeException("Bicycle is no longer available");
-            }
+                if (querySnapshots != null && !querySnapshots.isEmpty()) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        Booking b = doc.toObject(Booking.class);
+                        if (b != null) {
+                            if (Booking.STATUS_PENDING.equalsIgnoreCase(b.getStatus()) && b.isExpired()) {
+                                existingExpiredPending = b;
+                            } else {
+                                hasLiveBooking = true;
+                                break;
+                            }
+                        }
+                    }
+                }
 
-            // Mark bicycle as unavailable
-            transaction.update(bicycleRef, "available", false);
+                if (hasLiveBooking) {
+                    result.setValue(Resource.error(
+                        "You already have an active or reserved booking. Please complete or cancel it before booking another.", null));
+                    return;
+                }
 
-            // Decrement station available count
-            var stationRef = db.collection(STATIONS_COLLECTION).document(stationId);
-            transaction.update(stationRef, "availableBicycles", FieldValue.increment(-1));
+                // If previous reservation expired, release it cleanly
+                if (existingExpiredPending != null) {
+                    expireBooking(existingExpiredPending.getBookingId(),
+                            existingExpiredPending.getBicycleId(),
+                            existingExpiredPending.getStationId());
+                }
 
-            return null;
-        }).addOnSuccessListener(unused -> {
-            // Now create the booking document
-            Booking booking = new Booking(userId, bicycleId, stationId, stationName);
-            db.collection(BOOKINGS_COLLECTION)
-                .add(booking)
-                .addOnSuccessListener(ref -> {
-                    booking.setBookingId(ref.getId());
-                    result.setValue(Resource.success(booking));
-                })
-                .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
-        }).addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
+                // Expiry time set to 10 minutes from now
+                Date expiresAt = new Date(System.currentTimeMillis() + 10 * 60 * 1000);
+
+                // 2. Atomic reservation transaction on bicycle and station
+                db.runTransaction(transaction -> {
+                    var bicycleRef = db.collection(BICYCLES_COLLECTION).document(bicycleId);
+                    var bicycleSnap = transaction.get(bicycleRef);
+
+                    Boolean available = bicycleSnap.getBoolean("available");
+                    Boolean underMaintenance = bicycleSnap.getBoolean("underMaintenance");
+                    String status = bicycleSnap.getString("status");
+
+                    if (available == null || !available || Boolean.TRUE.equals(underMaintenance)
+                            || (status != null && !Bicycle.STATUS_AVAILABLE.equalsIgnoreCase(status))) {
+                        throw new RuntimeException("Bicycle is no longer available or under maintenance");
+                    }
+
+                    // Mark bicycle as RESERVED
+                    Map<String, Object> bikeUpdates = new HashMap<>();
+                    bikeUpdates.put("available", false);
+                    bikeUpdates.put("status", Bicycle.STATUS_RESERVED);
+                    transaction.update(bicycleRef, bikeUpdates);
+
+                    // Decrement station available count
+                    var stationRef = db.collection(STATIONS_COLLECTION).document(stationId);
+                    transaction.update(stationRef, "availableBicycles", FieldValue.increment(-1));
+
+                    return null;
+                }).addOnSuccessListener(unused -> {
+                    // 3. Create the booking document with PENDING status and expiresAt timestamp
+                    Booking booking = new Booking(userId, bicycleId, stationId, stationName);
+                    booking.setStatus(Booking.STATUS_PENDING);
+                    booking.setExpiresAt(expiresAt);
+
+                    db.collection(BOOKINGS_COLLECTION)
+                        .add(booking)
+                        .addOnSuccessListener(ref -> {
+                            booking.setBookingId(ref.getId());
+                            result.setValue(Resource.success(booking));
+                        })
+                        .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
+                }).addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
+
+            })
+            .addOnFailureListener(e -> result.setValue(Resource.error("Failed to verify user booking state: " + e.getMessage(), null)));
 
         return result;
     }
 
     /**
-     * Start the ride — sets startTime and status to ACTIVE.
+     * Start the ride — validates reservation, ensures caller is owner,
+     * updates booking to ACTIVE and bicycle to IN_USE atomically.
      */
     public LiveData<Resource<Void>> startRide(String bookingId) {
         MutableLiveData<Resource<Void>> result = new MutableLiveData<>();
         result.setValue(Resource.loading(null));
 
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("startTime", new Date());
-        updates.put("status", Booking.STATUS_ACTIVE);
+        db.runTransaction(transaction -> {
+            var bookingRef = db.collection(BOOKINGS_COLLECTION).document(bookingId);
+            var bookingSnap = transaction.get(bookingRef);
 
-        db.collection(BOOKINGS_COLLECTION).document(bookingId)
-            .update(updates)
-            .addOnSuccessListener(unused -> result.setValue(Resource.success(null)))
-            .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
+            if (!bookingSnap.exists()) {
+                throw new RuntimeException("Booking not found");
+            }
+
+            String currentStatus = bookingSnap.getString("status");
+            if (!Booking.STATUS_PENDING.equalsIgnoreCase(currentStatus)) {
+                throw new RuntimeException("Cannot start ride: booking is " + currentStatus);
+            }
+
+            Date expiresAt = bookingSnap.getDate("expiresAt");
+            Date createdAt = bookingSnap.getDate("createdAt");
+            long now = System.currentTimeMillis();
+            boolean isExpired = (expiresAt != null && now > expiresAt.getTime())
+                    || (createdAt != null && (now - createdAt.getTime()) > 10 * 60 * 1000);
+
+            String bicycleId = bookingSnap.getString("bicycleId");
+            String stationId = bookingSnap.getString("stationId");
+
+            if (isExpired) {
+                // Auto-expire booking
+                transaction.update(bookingRef, "status", Booking.STATUS_EXPIRED);
+                if (bicycleId != null) {
+                    var bicycleRef = db.collection(BICYCLES_COLLECTION).document(bicycleId);
+                    transaction.update(bicycleRef, "available", true, "status", Bicycle.STATUS_AVAILABLE);
+                }
+                if (stationId != null) {
+                    var stationRef = db.collection(STATIONS_COLLECTION).document(stationId);
+                    transaction.update(stationRef, "availableBicycles", FieldValue.increment(1));
+                }
+                throw new RuntimeException("Reservation has expired. Bicycle has been released.");
+            }
+
+            // Update booking to ACTIVE
+            transaction.update(bookingRef,
+                    "startTime", new Date(),
+                    "status", Booking.STATUS_ACTIVE);
+
+            // Update bicycle to IN_USE
+            if (bicycleId != null) {
+                var bicycleRef = db.collection(BICYCLES_COLLECTION).document(bicycleId);
+                transaction.update(bicycleRef,
+                        "status", Bicycle.STATUS_IN_USE,
+                        "available", false);
+            }
+
+            return null;
+        }).addOnSuccessListener(unused -> result.setValue(Resource.success(null)))
+          .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
 
         return result;
     }
@@ -182,6 +281,7 @@ public class BookingRepository {
             var bicycleRef = db.collection(BICYCLES_COLLECTION).document(bicycleId);
             Map<String, Object> bicycleUpdates = new HashMap<>();
             bicycleUpdates.put("available",      true);
+            bicycleUpdates.put("status",         Bicycle.STATUS_AVAILABLE);
             bicycleUpdates.put("stationId",      returnStationId);
             bicycleUpdates.put("stationName",    returnStationName);
             bicycleUpdates.put("suspectedTheft", false);
@@ -305,16 +405,12 @@ public class BookingRepository {
                 if (snapshots != null && !snapshots.isEmpty()) {
                     Booking booking = snapshots.getDocuments().get(0).toObject(Booking.class);
                     if (booking != null) {
-                        // Auto-cancel PENDING bookings older than 10 minutes
-                        if (Booking.STATUS_PENDING.equals(booking.getStatus())
-                                && booking.getCreatedAt() != null) {
-                            long ageMs = new Date().getTime() - booking.getCreatedAt().getTime();
-                            if (ageMs > 10 * 60 * 1000) { // 10 minutes
-                                cancelBooking(booking.getBookingId(),
-                                        booking.getBicycleId(), booking.getStationId());
-                                result.setValue(Resource.success(null));
-                                return;
-                            }
+                        // Auto-expire PENDING bookings if past expiration window
+                        if (Booking.STATUS_PENDING.equalsIgnoreCase(booking.getStatus()) && booking.isExpired()) {
+                            expireBooking(booking.getBookingId(),
+                                    booking.getBicycleId(), booking.getStationId());
+                            result.setValue(Resource.success(null));
+                            return;
                         }
                         result.setValue(Resource.success(booking));
                     }
@@ -353,7 +449,7 @@ public class BookingRepository {
     }
 
     /**
-     * Cancel a pending booking.
+     * Cancel a pending booking. Releases reserved bicycle back to AVAILABLE.
      */
     public LiveData<Resource<Void>> cancelBooking(String bookingId, String bicycleId, String stationId) {
         MutableLiveData<Resource<Void>> result = new MutableLiveData<>();
@@ -361,13 +457,61 @@ public class BookingRepository {
 
         db.runTransaction(transaction -> {
             var bookingRef = db.collection(BOOKINGS_COLLECTION).document(bookingId);
+            var bookingSnap = transaction.get(bookingRef);
+
+            if (bookingSnap.exists()) {
+                String currentStatus = bookingSnap.getString("status");
+                if (Booking.STATUS_ACTIVE.equalsIgnoreCase(currentStatus)
+                        || Booking.STATUS_COMPLETED.equalsIgnoreCase(currentStatus)) {
+                    throw new RuntimeException("Cannot cancel a ride that is already " + currentStatus);
+                }
+            }
+
             transaction.update(bookingRef, "status", Booking.STATUS_CANCELLED);
 
             var bicycleRef = db.collection(BICYCLES_COLLECTION).document(bicycleId);
-            transaction.update(bicycleRef, "available", true);
+            Map<String, Object> bikeUpdates = new HashMap<>();
+            bikeUpdates.put("available", true);
+            bikeUpdates.put("status", Bicycle.STATUS_AVAILABLE);
+            transaction.update(bicycleRef, bikeUpdates);
 
             var stationRef = db.collection(STATIONS_COLLECTION).document(stationId);
             transaction.update(stationRef, "availableBicycles", FieldValue.increment(1));
+
+            return null;
+        }).addOnSuccessListener(unused -> result.setValue(Resource.success(null)))
+          .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
+
+        return result;
+    }
+
+    /**
+     * Mark an expired pending booking as EXPIRED and release bicycle back to AVAILABLE.
+     */
+    public LiveData<Resource<Void>> expireBooking(String bookingId, String bicycleId, String stationId) {
+        MutableLiveData<Resource<Void>> result = new MutableLiveData<>();
+        result.setValue(Resource.loading(null));
+
+        db.runTransaction(transaction -> {
+            var bookingRef = db.collection(BOOKINGS_COLLECTION).document(bookingId);
+            var bookingSnap = transaction.get(bookingRef);
+
+            if (bookingSnap.exists()) {
+                String currentStatus = bookingSnap.getString("status");
+                // Only pending bookings can transition to EXPIRED
+                if (Booking.STATUS_PENDING.equalsIgnoreCase(currentStatus)) {
+                    transaction.update(bookingRef, "status", Booking.STATUS_EXPIRED);
+
+                    var bicycleRef = db.collection(BICYCLES_COLLECTION).document(bicycleId);
+                    Map<String, Object> bikeUpdates = new HashMap<>();
+                    bikeUpdates.put("available", true);
+                    bikeUpdates.put("status", Bicycle.STATUS_AVAILABLE);
+                    transaction.update(bicycleRef, bikeUpdates);
+
+                    var stationRef = db.collection(STATIONS_COLLECTION).document(stationId);
+                    transaction.update(stationRef, "availableBicycles", FieldValue.increment(1));
+                }
+            }
 
             return null;
         }).addOnSuccessListener(unused -> result.setValue(Resource.success(null)))

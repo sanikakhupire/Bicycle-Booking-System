@@ -44,6 +44,10 @@ public class BicycleViewModel extends ViewModel {
         return bicycleRepository.updateAvailability(bicycleId, isAvailable);
     }
 
+    public LiveData<Resource<Void>> updateBicycleStatus(String bicycleId, String newStatus) {
+        return bicycleRepository.updateBicycleStatus(bicycleId, newStatus);
+    }
+
     public LiveData<Resource<Void>> deleteBicycle(String bicycleId) {
         return bicycleRepository.deleteBicycle(bicycleId);
     }

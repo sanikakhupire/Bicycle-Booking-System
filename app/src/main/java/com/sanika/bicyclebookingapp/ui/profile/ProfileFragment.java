@@ -92,6 +92,14 @@ public class ProfileFragment extends Fragment {
             binding.tilName.setError("Name cannot be empty");
             return;
         }
+        binding.tilName.setError(null);
+
+        if (!com.sanika.bicyclebookingapp.util.ValidationUtil.isValidPhone(phone)) {
+            binding.tilPhone.setError("Enter a valid 10-digit Indian mobile number");
+            return;
+        }
+        binding.tilPhone.setError(null);
+        phone = com.sanika.bicyclebookingapp.util.ValidationUtil.normalizeIndianPhone(phone);
 
         setLoading(true);
         authViewModel.updateProfile(uid, name, phone).observe(getViewLifecycleOwner(), resource -> {

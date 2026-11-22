@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * Represents a booking in Firestore collection "bookings".
  *
- * Status flow: PENDING → ACTIVE → COMPLETED / CANCELLED
+ * Status flow: PENDING → ACTIVE → COMPLETED / CANCELLED / EXPIRED
  */
 public class Booking {
 
@@ -15,6 +15,7 @@ public class Booking {
     public static final String STATUS_ACTIVE    = "ACTIVE";
     public static final String STATUS_COMPLETED = "COMPLETED";
     public static final String STATUS_CANCELLED = "CANCELLED";
+    public static final String STATUS_EXPIRED   = "EXPIRED";
 
     @DocumentId
     private String bookingId;
@@ -28,6 +29,7 @@ public class Booking {
     private Date createdAt;
     private Date startTime;
     private Date endTime;
+    private Date expiresAt;
 
     private long durationMinutes;
     private double fare;
@@ -70,6 +72,14 @@ public class Booking {
 
     public Date getEndTime() { return endTime; }
     public void setEndTime(Date endTime) { this.endTime = endTime; }
+
+    public Date getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(Date expiresAt) { this.expiresAt = expiresAt; }
+
+    public boolean isExpired() {
+        if (STATUS_EXPIRED.equalsIgnoreCase(status)) return true;
+        return STATUS_PENDING.equalsIgnoreCase(status) && expiresAt != null && new Date().after(expiresAt);
+    }
 
     public long getDurationMinutes() { return durationMinutes; }
     public void setDurationMinutes(long durationMinutes) { this.durationMinutes = durationMinutes; }
