@@ -48,6 +48,24 @@ public class FareCalculator {
         return Math.round(fare * 100.0) / 100.0;
     }
 
+    public static double getBaseFare() {
+        return BASE_FARE;
+    }
+
+    public static double getDistanceCharge(double distanceKm) {
+        double safeDistance = Math.max(0.0, Math.min(distanceKm, 200.0));
+        return Math.round(safeDistance * RATE_PER_KM * 100.0) / 100.0;
+    }
+
+    public static double getTimeCharge(long elapsedMs) {
+        double minutes = Math.max(0.0, elapsedMs / 60000.0);
+        return Math.round(minutes * RATE_PER_MIN * 100.0) / 100.0;
+    }
+
+    public static long calculatePaise(double distanceKm, long elapsedMs) {
+        return Math.round(calculate(distanceKm, elapsedMs) * 100.0);
+    }
+
     public static String getBreakdown(double distanceKm, long elapsedMs) {
         double minutes = elapsedMs / 60000.0;
         double distCharge = distanceKm * RATE_PER_KM;

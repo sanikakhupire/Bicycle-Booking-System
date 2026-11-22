@@ -1,8 +1,11 @@
 package com.sanika.bicyclebookingapp.model;
 
 import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ServerTimestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Represents a booking in Firestore collection "bookings".
@@ -36,6 +39,13 @@ public class Booking {
     private long durationMinutes;
     private double fare;
     private double distanceKm;
+    private double currentFare;
+    private GeoPoint currentLocation;
+    private GeoPoint dropOffLocation;
+    private List<GeoPoint> routePoints = new ArrayList<>();
+    private String endedBy;
+    private String paymentStatus;
+    private String paymentTxnId;
 
     // Required empty constructor for Firestore
     public Booking() {}
@@ -97,4 +107,27 @@ public class Booking {
 
     public double getDistanceKm() { return distanceKm; }
     public void setDistanceKm(double distanceKm) { this.distanceKm = distanceKm; }
+
+    public double getCurrentFare() { return currentFare; }
+    public void setCurrentFare(double currentFare) { this.currentFare = currentFare; }
+
+    public GeoPoint getCurrentLocation() { return currentLocation; }
+    public void setCurrentLocation(GeoPoint currentLocation) { this.currentLocation = currentLocation; }
+
+    public GeoPoint getDropOffLocation() { return dropOffLocation; }
+    public void setDropOffLocation(GeoPoint dropOffLocation) { this.dropOffLocation = dropOffLocation; }
+
+    public List<GeoPoint> getRoutePoints() { return routePoints; }
+    public void setRoutePoints(List<GeoPoint> routePoints) {
+        this.routePoints = routePoints != null ? routePoints : new ArrayList<>();
+    }
+
+    public String getEndedBy() { return endedBy; }
+    public void setEndedBy(String endedBy) { this.endedBy = endedBy; }
+
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+
+    public String getPaymentTxnId() { return paymentTxnId; }
+    public void setPaymentTxnId(String paymentTxnId) { this.paymentTxnId = paymentTxnId; }
 }

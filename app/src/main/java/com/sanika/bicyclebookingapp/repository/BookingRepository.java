@@ -237,9 +237,11 @@ public class BookingRepository {
                         double fare = ((Number) response.get("fare")).doubleValue();
                         long durationMinutes =
                                 ((Number) response.get("durationMinutes")).longValue();
+                        double distanceKm = response.containsKey("distanceKm")
+                                ? ((Number) response.get("distanceKm")).doubleValue() : 0.0;
                         finalizeRide(result, bookingId, bicycleId,
                                 returnStationId, returnStationName,
-                                stationGeoPoint, fare, durationMinutes);
+                                stationGeoPoint, fare, durationMinutes, distanceKm);
                     })
                     .addOnFailureListener(e ->
                         // Cloud Function unavailable — calculate locally
@@ -263,19 +265,36 @@ public class BookingRepository {
                                String bookingId, String bicycleId,
                                String returnStationId, String returnStationName,
                                com.google.firebase.firestore.GeoPoint stationGeoPoint,
-                               double fare, long durationMinutes) {
+                               double fare, long durationMinutes, double distanceKm) {
 
         db.runTransaction(transaction -> {
-            // 1. Update booking
             var bookingRef = db.collection(BOOKINGS_COLLECTION).document(bookingId);
-            transaction.update(bookingRef,
-                "endTime",            new Date(),
-                "status",             Booking.STATUS_COMPLETED,
-                "fare",               fare,
-                "durationMinutes",    durationMinutes,
-                "returnStationId",    returnStationId,
-                "returnStationName",  returnStationName
-            );
+            com.google.firebase.firestore.DocumentSnapshot bookingSnap = transaction.get(bookingRef);
+            if (!bookingSnap.exists()) {
+                throw new RuntimeException("Booking not found");
+            }
+            String currentStatus = bookingSnap.getString("status");
+            if (!Booking.STATUS_ACTIVE.equalsIgnoreCase(currentStatus)) {
+                throw new RuntimeException("Ride is not active (current status: " + currentStatus + ")");
+            }
+
+            Double trackedDist = bookingSnap.getDouble("distanceKm");
+            double finalDistance = (trackedDist != null && trackedDist > 0) ? trackedDist : distanceKm;
+
+            // 1. Update booking
+            Map<String, Object> bookingUpdates = new HashMap<>();
+            bookingUpdates.put("endTime", new Date());
+            bookingUpdates.put("status", Booking.STATUS_COMPLETED);
+            bookingUpdates.put("fare", fare);
+            bookingUpdates.put("durationMinutes", durationMinutes);
+            bookingUpdates.put("distanceKm", finalDistance);
+            bookingUpdates.put("returnStationId", returnStationId);
+            bookingUpdates.put("returnStationName", returnStationName);
+            bookingUpdates.put("endedBy", "RETURN_VALIDATED");
+            if (stationGeoPoint != null) {
+                bookingUpdates.put("dropOffLocation", stationGeoPoint);
+            }
+            transaction.update(bookingRef, bookingUpdates);
 
             // 2. Update bicycle — move it to the return station
             var bicycleRef = db.collection(BICYCLES_COLLECTION).document(bicycleId);
@@ -295,9 +314,9 @@ public class BookingRepository {
             var stationRef = db.collection(STATIONS_COLLECTION).document(returnStationId);
             transaction.update(stationRef, "availableBicycles", FieldValue.increment(1));
 
-            return null;
+            return finalDistance;
 
-        }).addOnSuccessListener(unused -> {
+        }).addOnSuccessListener(finalDistance -> {
             // Create payment record
             Payment payment = new Payment(bookingId, null, fare);
             payment.setStatus(Payment.STATUS_SUCCESS);
@@ -307,8 +326,12 @@ public class BookingRepository {
             // (don't re-fetch — Firestore may not have synced yet)
             Booking completedBooking = new Booking();
             completedBooking.setBookingId(bookingId);
+            completedBooking.setBicycleId(bicycleId);
             completedBooking.setFare(fare);
             completedBooking.setDurationMinutes(durationMinutes);
+            completedBooking.setDistanceKm(finalDistance != null ? (double) finalDistance : distanceKm);
+            completedBooking.setReturnStationId(returnStationId);
+            completedBooking.setReturnStationName(returnStationName);
             completedBooking.setStatus(Booking.STATUS_COMPLETED);
             result.setValue(Resource.success(completedBooking));
 
@@ -333,6 +356,10 @@ public class BookingRepository {
                     result.setValue(Resource.error("Booking not found", null));
                     return;
                 }
+                if (!Booking.STATUS_ACTIVE.equalsIgnoreCase(booking.getStatus())) {
+                    result.setValue(Resource.error("Ride is not currently active.", null));
+                    return;
+                }
 
                 long startMs = booking.getStartTime() != null
                         ? booking.getStartTime().getTime()
@@ -349,7 +376,7 @@ public class BookingRepository {
 
                 finalizeRide(result, bookingId, bicycleId,
                         returnStationId, returnStationName,
-                        stationGeoPoint, fare, durationMinutes);
+                        stationGeoPoint, fare, durationMinutes, distanceKm);
             })
             .addOnFailureListener(e ->
                 result.setValue(Resource.error(e.getMessage(), null)));

@@ -25,49 +25,71 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.sanika.bicyclebookingapp.R;
+import com.sanika.bicyclebookingapp.model.Bicycle;
+import com.sanika.bicyclebookingapp.model.Booking;
 import com.sanika.bicyclebookingapp.ui.main.MainActivity;
 import com.sanika.bicyclebookingapp.util.AutoBillingManager;
 import com.sanika.bicyclebookingapp.util.FareCalculator;
 import com.sanika.bicyclebookingapp.util.StationProximityChecker;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Foreground service that runs during an active ride.
  *
  * Responsibilities:
- * 1. Tracks GPS location every 10 seconds
- * 2. Calculates cumulative distance travelled
- * 3. Computes fare = base_fare + (distance * rate_per_km) + (time * rate_per_min)
- * 4. Updates Firestore every 30 seconds with live location, distance, fare
- * 5. Checks if user is near a station (auto-end ride)
- * 6. Shows persistent notification with live fare
- *
- * Ride ends ONLY when:
- * - User scans QR at an authorized station
- * - GPS detects user is within 50m of a station
+ * 1. Tracks GPS location every 10 seconds (battery-conscious, displacement threshold)
+ * 2. Collects route coordinates for live polyline map display and crash recovery
+ * 3. Calculates cumulative distance travelled with noise filtering
+ * 4. Computes fare = base_fare + (distance * rate_per_km) + (time * rate_per_min) in INR
+ * 5. Updates Firestore periodically with live location, distance, fare, and route points
+ * 6. Checks station proximity and broadcasts nearby station docking status
+ * 7. Shows persistent notification with live distance and fare
+ * 8. Never tracks location when ride is inactive
  */
 public class RideTrackingService extends Service {
 
     public static final String ACTION_START  = "ACTION_START_RIDE";
     public static final String ACTION_STOP   = "ACTION_STOP_RIDE";
 
+    public static final String ACTION_LOCATION_UPDATE   = "com.sanika.bicyclebookingapp.LOCATION_UPDATE";
+    public static final String ACTION_STATION_PROXIMITY = "com.sanika.bicyclebookingapp.STATION_PROXIMITY";
+    public static final String ACTION_RIDE_ENDED_BY_GPS = "com.sanika.bicyclebookingapp.RIDE_ENDED_BY_GPS";
+
     public static final String EXTRA_BOOKING_ID  = "bookingId";
     public static final String EXTRA_BICYCLE_ID  = "bicycleId";
     public static final String EXTRA_STATION_ID  = "stationId";
     public static final String EXTRA_START_TIME  = "startTime";
 
+    public static final String EXTRA_LATITUDE          = "latitude";
+    public static final String EXTRA_LONGITUDE         = "longitude";
+    public static final String EXTRA_DISTANCE_KM       = "distanceKm";
+    public static final String EXTRA_CURRENT_FARE      = "currentFare";
+    public static final String EXTRA_ELAPSED_MS        = "elapsedMs";
+    public static final String EXTRA_NEARBY_STATION_ID = "nearbyStationId";
+    public static final String EXTRA_NEARBY_STATION_NAME = "nearbyStationName";
+    public static final String EXTRA_NEARBY_DISTANCE_M = "nearbyDistanceM";
+
     private static final String CHANNEL_ID   = "ride_tracking_channel";
     private static final int    NOTIF_ID     = 2001;
 
-    // Location update interval
+    // Location update intervals
     private static final long LOCATION_INTERVAL_MS = 10_000; // 10 seconds
-    // Firestore update interval
+    private static final long FASTEST_INTERVAL_MS  = 5_000;  // 5 seconds
+    private static final float MIN_DISPLACEMENT_M  = 5.0f;   // 5 meters
+
+    // Firestore sync interval
     private static final long FIRESTORE_UPDATE_INTERVAL_MS = 30_000; // 30 seconds
-    // Station proximity threshold
-    private static final float STATION_RADIUS_METERS = 50f;
+
+    // Station proximity threshold for dock notification (100m)
+    private static final float STATION_PROXIMITY_RADIUS_M = 100f;
+
+    // Maximum coordinates stored in memory/Firestore to prevent payload bloat
+    private static final int MAX_ROUTE_POINTS = 500;
 
     private FusedLocationProviderClient fusedClient;
     private LocationCallback locationCallback;
@@ -82,10 +104,11 @@ public class RideTrackingService extends Service {
     private double   totalDistanceKm  = 0.0;
     private double   currentFare      = 0.0;
     private long     lastFirestoreUpdateMs  = 0;
-    private long     lastHourlyBillingMs    = 0; // tracks last hourly billing check
+    private long     lastHourlyBillingMs    = 0;
     private double   depositPaid            = AutoBillingManager.SECURITY_DEPOSIT;
     private boolean  proximityCheckEnabled  = false;
 
+    private final List<GeoPoint> routeCoordinates = new ArrayList<>();
     private AutoBillingManager autoBillingManager;
 
     @Override
@@ -107,6 +130,7 @@ public class RideTrackingService extends Service {
             startTimeMs = intent.getLongExtra(EXTRA_START_TIME, System.currentTimeMillis());
 
             startForeground(NOTIF_ID, buildNotification("Ride in progress...", "₹0.00"));
+            recoverStateFromFirestore();
             startLocationUpdates();
             autoBillingManager = new AutoBillingManager(this);
             lastHourlyBillingMs = System.currentTimeMillis();
@@ -118,6 +142,37 @@ public class RideTrackingService extends Service {
         return START_STICKY;
     }
 
+    /**
+     * Recovers existing distance, start time, and route points if service was
+     * restarted after app crash or system low-memory kill.
+     */
+    private void recoverStateFromFirestore() {
+        if (bookingId == null) return;
+
+        db.collection("bookings").document(bookingId).get()
+                .addOnSuccessListener(snap -> {
+                    if (!snap.exists()) return;
+
+                    Booking booking = snap.toObject(Booking.class);
+                    if (booking != null) {
+                        if (booking.getStartTime() != null && startTimeMs <= 0) {
+                            startTimeMs = booking.getStartTime().getTime();
+                        }
+                        if (booking.getDistanceKm() > totalDistanceKm) {
+                            totalDistanceKm = booking.getDistanceKm();
+                        }
+                        if (booking.getRoutePoints() != null && !booking.getRoutePoints().isEmpty()) {
+                            routeCoordinates.clear();
+                            routeCoordinates.addAll(booking.getRoutePoints());
+                        }
+                        if (booking.getCurrentFare() > 0) {
+                            currentFare = booking.getCurrentFare();
+                        }
+                        updateNotification(currentFare, totalDistanceKm);
+                    }
+                });
+    }
+
     private void startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -127,7 +182,8 @@ public class RideTrackingService extends Service {
 
         LocationRequest request = new LocationRequest.Builder(
                 Priority.PRIORITY_HIGH_ACCURACY, LOCATION_INTERVAL_MS)
-                .setMinUpdateIntervalMillis(5_000)
+                .setMinUpdateIntervalMillis(FASTEST_INTERVAL_MS)
+                .setMinUpdateDistanceMeters(MIN_DISPLACEMENT_M)
                 .build();
 
         locationCallback = new LocationCallback() {
@@ -145,28 +201,34 @@ public class RideTrackingService extends Service {
     }
 
     private void onNewLocation(Location newLocation) {
-        // Filter out inaccurate GPS readings
-        // Only use location if accuracy is within 50 meters
-        if (newLocation.getAccuracy() > 50f) return;
+        // Filter inaccurate GPS readings (only use readings within 35m accuracy)
+        if (newLocation.getAccuracy() > 35f) return;
 
         // Calculate distance from last known location
         if (lastLocation != null) {
             float distanceMeters = lastLocation.distanceTo(newLocation);
 
             // Filter GPS noise:
-            // - Ignore movements less than 5 meters (stationary noise)
-            // - Ignore jumps more than 100 meters in 10 seconds (impossible on bicycle)
+            // - Ignore stationary jitter (< 5 meters)
+            // - Ignore impossible jumps (> 100 meters in 10 seconds, equivalent to 36 km/h)
             if (distanceMeters >= 5f && distanceMeters <= 100f) {
                 totalDistanceKm += distanceMeters / 1000.0;
+                addRoutePoint(newLocation.getLatitude(), newLocation.getLongitude());
             }
+        } else {
+            // First valid GPS fix
+            addRoutePoint(newLocation.getLatitude(), newLocation.getLongitude());
         }
         lastLocation = newLocation;
 
         // Calculate current fare
-        long elapsedMs = System.currentTimeMillis() - startTimeMs;
+        long elapsedMs = Math.max(0, System.currentTimeMillis() - startTimeMs);
         currentFare = FareCalculator.calculate(totalDistanceKm, elapsedMs);
 
-        // Update notification with live fare
+        // Broadcast live location to active UI
+        broadcastLocationUpdate(newLocation, elapsedMs);
+
+        // Update ongoing notification
         updateNotification(currentFare, totalDistanceKm);
 
         // Update Firestore every 30 seconds
@@ -181,22 +243,36 @@ public class RideTrackingService extends Service {
             lastHourlyBillingMs = now;
             if (autoBillingManager != null) {
                 autoBillingManager.checkAndBill(
-                    bookingId, null, startTimeMs, currentFare, depositPaid);
+                        bookingId, null, startTimeMs, currentFare, depositPaid);
             }
         }
 
-        // Check if user is near a station → auto-end ride
-        // Safeguard: only trigger proximity auto-end if ride is active for at least 2 minutes
-        // and user has moved at least 100 meters away from origin
-        long elapsedSinceStart = System.currentTimeMillis() - startTimeMs;
-        if (!proximityCheckEnabled) {
-            if (elapsedSinceStart >= 120_000L && totalDistanceKm >= 0.1) {
-                proximityCheckEnabled = true;
+        // Check station proximity to notify user of docking availability
+        checkStationProximity(newLocation);
+    }
+
+    private void addRoutePoint(double lat, double lng) {
+        if (routeCoordinates.size() >= MAX_ROUTE_POINTS) {
+            // Keep points within budget by downsampling (removing every 2nd point)
+            List<GeoPoint> downsampled = new ArrayList<>();
+            for (int i = 0; i < routeCoordinates.size(); i += 2) {
+                downsampled.add(routeCoordinates.get(i));
             }
+            routeCoordinates.clear();
+            routeCoordinates.addAll(downsampled);
         }
-        if (proximityCheckEnabled) {
-            checkStationProximity(newLocation);
-        }
+        routeCoordinates.add(new GeoPoint(lat, lng));
+    }
+
+    private void broadcastLocationUpdate(Location location, long elapsedMs) {
+        Intent broadcast = new Intent(ACTION_LOCATION_UPDATE);
+        broadcast.setPackage(getPackageName());
+        broadcast.putExtra(EXTRA_LATITUDE, location.getLatitude());
+        broadcast.putExtra(EXTRA_LONGITUDE, location.getLongitude());
+        broadcast.putExtra(EXTRA_DISTANCE_KM, totalDistanceKm);
+        broadcast.putExtra(EXTRA_CURRENT_FARE, currentFare);
+        broadcast.putExtra(EXTRA_ELAPSED_MS, elapsedMs);
+        sendBroadcast(broadcast);
     }
 
     private void updateFirestore(Location location) {
@@ -205,85 +281,44 @@ public class RideTrackingService extends Service {
         Map<String, Object> updates = new HashMap<>();
         updates.put("currentLocation", new GeoPoint(
                 location.getLatitude(), location.getLongitude()));
-        updates.put("distanceKm", totalDistanceKm);
+        updates.put("distanceKm", Math.round(totalDistanceKm * 100.0) / 100.0);
         updates.put("currentFare", currentFare);
+        updates.put("routePoints", routeCoordinates);
         updates.put("lastUpdated", FieldValue.serverTimestamp());
 
         db.collection("bookings").document(bookingId).update(updates);
 
         // Also update bicycle last location
-        db.collection("bicycles").document(bicycleId)
-            .update("lastLocation", new GeoPoint(
-                    location.getLatitude(), location.getLongitude()),
-                    "lastLocationTime", FieldValue.serverTimestamp());
+        if (bicycleId != null) {
+            db.collection("bicycles").document(bicycleId)
+                    .update("lastLocation", new GeoPoint(
+                                    location.getLatitude(), location.getLongitude()),
+                            "lastLocationTime", FieldValue.serverTimestamp());
+        }
     }
 
     /**
-     * Checks if user is within STATION_RADIUS_METERS of any station.
-     * If yes, automatically ends the ride.
+     * Checks if user is within STATION_PROXIMITY_RADIUS_M of any station.
+     * Broadcasts proximity status so the UI can notify the rider and offer 1-tap docking.
      */
     private void checkStationProximity(Location userLocation) {
-        StationProximityChecker.findNearestStation(db, userLocation, STATION_RADIUS_METERS,
-            (nearestStationId, nearestStationName, distanceMeters) -> {
-                if (nearestStationId != null) {
-                    // User is at a station — end the ride automatically
-                    endRideAtStation(nearestStationId, nearestStationName, userLocation);
-                }
-            });
-    }
-
-    /**
-     * Called when GPS confirms user is at a station.
-     * Finalizes the ride and fare.
-     */
-    private void endRideAtStation(String returnStationId, String returnStationName,
-                                   Location dropLocation) {
-        if (bookingId == null) return;
-
-        long elapsedMs = System.currentTimeMillis() - startTimeMs;
-        long durationMinutes = Math.max(1, elapsedMs / 60000);
-        double finalFare = FareCalculator.calculate(totalDistanceKm, elapsedMs);
-
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("endTime", new Date());
-        updates.put("status", "COMPLETED");
-        updates.put("fare", finalFare);
-        updates.put("durationMinutes", durationMinutes);
-        updates.put("distanceKm", totalDistanceKm);
-        updates.put("returnStationId", returnStationId);
-        updates.put("returnStationName", returnStationName);
-        updates.put("dropOffLocation", new GeoPoint(
-                dropLocation.getLatitude(), dropLocation.getLongitude()));
-        updates.put("endedBy", "GPS_STATION_DETECTION");
-
-        db.collection("bookings").document(bookingId).update(updates)
-            .addOnSuccessListener(unused -> {
-                // Mark bicycle available at the return station
-                db.collection("bicycles").document(bicycleId)
-                    .update("available", true,
-                            "stationId", returnStationId,
-                            "stationName", returnStationName);
-
-                // Increment station available count
-                db.collection("stations").document(returnStationId)
-                    .update("availableBicycles",
-                            com.google.firebase.firestore.FieldValue.increment(1));
-
-                // Broadcast ride ended to UI
-                Intent broadcast = new Intent("RIDE_ENDED_BY_GPS");
-                broadcast.putExtra("bookingId", bookingId);
-                broadcast.putExtra("fare", (float) finalFare);
-                broadcast.putExtra("durationMinutes", durationMinutes);
-                broadcast.putExtra("distanceKm", (float) totalDistanceKm);
-                sendBroadcast(broadcast);
-
-                stopRideTracking();
-            });
+        StationProximityChecker.findNearestStation(db, userLocation, STATION_PROXIMITY_RADIUS_M,
+                (nearestStationId, nearestStationName, distanceMeters) -> {
+                    if (nearestStationId != null && distanceMeters <= STATION_PROXIMITY_RADIUS_M) {
+                        Intent proxBroadcast = new Intent(ACTION_STATION_PROXIMITY);
+                        proxBroadcast.setPackage(getPackageName());
+                        proxBroadcast.putExtra(EXTRA_NEARBY_STATION_ID, nearestStationId);
+                        proxBroadcast.putExtra(EXTRA_NEARBY_STATION_NAME, nearestStationName);
+                        proxBroadcast.putExtra(EXTRA_NEARBY_DISTANCE_M, distanceMeters);
+                        sendBroadcast(proxBroadcast);
+                    }
+                });
     }
 
     public void stopRideTracking() {
         if (locationCallback != null) {
             fusedClient.removeLocationUpdates(locationCallback);
+            locationCallback = null;
         }
         stopForeground(true);
         stopSelf();
@@ -294,7 +329,9 @@ public class RideTrackingService extends Service {
         String distText = String.format("%.2f km", distanceKm);
         NotificationManager manager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        manager.notify(NOTIF_ID, buildNotification(distText + " travelled", fareText));
+        if (manager != null) {
+            manager.notify(NOTIF_ID, buildNotification(distText + " travelled", fareText));
+        }
     }
 
     private Notification buildNotification(String content, String fare) {
@@ -308,6 +345,7 @@ public class RideTrackingService extends Service {
                 .setContentText(content)
                 .setOngoing(true)
                 .setContentIntent(pi)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build();
     }
 
@@ -315,9 +353,11 @@ public class RideTrackingService extends Service {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID, "Ride Tracking", NotificationManager.IMPORTANCE_LOW);
-            channel.setDescription("Shows live fare during active ride");
-            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE))
-                    .createNotificationChannel(channel);
+            channel.setDescription("Shows live fare and route distance during an active ride");
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            if (nm != null) {
+                nm.createNotificationChannel(channel);
+            }
         }
     }
 
@@ -328,6 +368,7 @@ public class RideTrackingService extends Service {
     public void onDestroy() {
         if (locationCallback != null) {
             fusedClient.removeLocationUpdates(locationCallback);
+            locationCallback = null;
         }
         super.onDestroy();
     }

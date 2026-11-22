@@ -1,170 +1,305 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:fillViewport="true"
+    android:background="@color/colorBackground">
 
-    <!-- Success icon -->
-    <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="40dp"
-        android:src="@drawable/ic_check_circle"
-        android:contentDescription="Success"
-        android:tint="@color/colorAvailable" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Ride Complete!"
-        android:textColor="@color/colorTextPrimary"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <!-- Summary Card -->
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp">
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <LinearLayout
+        <!-- Success icon -->
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/ic_check_circle"
+            android:contentDescription="Success"
+            app:tint="@color/colorAvailable" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Ride Completed!"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <!-- Stations Route summary -->
+        <TextView
+            android:id="@+id/tvStations"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Pickup Station → Return Station"
+            android:textColor="@color/colorTextSecondary"
+            android:textSize="13sp" />
+
+        <!-- Summary & Itemized Receipt Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="3dp">
 
-            <!-- Duration row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="0dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Primary Metrics: Duration & GPS Distance -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Duration"
-                    android:textColor="@color/colorTextSecondary"
-                    android:textSize="14sp" />
+                    android:orientation="horizontal">
+
+                    <!-- Duration Column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="DURATION"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvDuration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="0 min"
+                            android:textColor="@color/colorTextPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Distance Column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="GPS DISTANCE"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvDistance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="0.00 km"
+                            android:textColor="@color/colorTextPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@color/colorDivider" />
+
+                <!-- Itemized Fare Breakdown Header -->
                 <TextView
-                    android:id="@+id/tvDuration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/colorTextPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"
-                android:background="@color/colorDivider" />
-
-            <!-- Fare row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Total Fare"
+                    android:text="FARE BREAKDOWN (INR)"
                     android:textColor="@color/colorTextSecondary"
-                    android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/tvFare"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="22sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
+
+                <!-- Base fee row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Base Booking Charge"
+                        android:textColor="@color/colorTextSecondary"
+                        android:textSize="13sp" />
+                    <TextView
+                        android:id="@+id/tvBaseFare"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹5.00"
+                        android:textColor="@color/colorTextPrimary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Distance charge row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/tvDistanceLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Distance Charge (@ ₹8/km)"
+                        android:textColor="@color/colorTextSecondary"
+                        android:textSize="13sp" />
+                    <TextView
+                        android:id="@+id/tvDistanceFare"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹0.00"
+                        android:textColor="@color/colorTextPrimary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Duration charge row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/tvDurationLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Time Charge (@ ₹1/min)"
+                        android:textColor="@color/colorTextSecondary"
+                        android:textSize="13sp" />
+                    <TextView
+                        android:id="@+id/tvDurationFare"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹0.00"
+                        android:textColor="@color/colorTextPrimary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/colorDivider" />
+
+                <!-- Total Fare Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Total Fare"
+                        android:textColor="@color/colorTextPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvFare"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/colorDivider" />
+
+                <!-- Security Deposit Settlement Info -->
+                <TextView
+                    android:id="@+id/tvPaymentStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="13sp" />
+
+                <!-- Transaction ID (shown after payment) -->
+                <TextView
+                    android:id="@+id/tvTransactionId"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:textColor="@color/colorAvailable"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"
-                android:background="@color/colorDivider" />
+        <!-- UPI apps notice -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="Instant Indian UPI settlement via GPay, PhonePe, Paytm"
+            android:textColor="@color/colorTextSecondary"
+            android:textSize="12sp" />
 
-            <!-- Payment status -->
-            <TextView
-                android:id="@+id/tvPaymentStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textColor="@color/colorTextSecondary"
-                android:textSize="13sp" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="16dp" />
 
-            <!-- Transaction ID (shown after payment) -->
-            <TextView
-                android:id="@+id/tvTransactionId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:gravity="center"
-                android:textColor="@color/colorAvailable"
-                android:textSize="11sp"
-                android:visibility="gone" />
+        <!-- Pay Now button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPayNow"
+            style="@style/PrimaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/colorAccent"
+            android:text="Pay Now"
+            android:visibility="gone" />
 
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+        <!-- Cash payment fallback -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPayCash"
+            style="@style/SecondaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:strokeColor="@color/colorPrimary"
+            android:textColor="@color/colorPrimary"
+            android:text="Pay by Cash"
+            android:visibility="gone" />
 
-    <!-- UPI apps info -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center"
-        android:text="Opens GPay, PhonePe, Paytm or any UPI app"
-        android:textColor="@color/colorTextSecondary"
-        android:textSize="12sp" />
+        <!-- Go Home button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGoHome"
+            style="@style/PrimaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Back to Home"
+            android:visibility="gone" />
 
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <!-- Pay Now button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnPayNow"
-        style="@style/PrimaryButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/colorAccent"
-        android:text="Pay Now"
-        android:visibility="gone" />
-
-    <!-- Cash payment fallback -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnPayCash"
-        style="@style/SecondaryButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:strokeColor="@color/colorPrimary"
-        android:textColor="@color/colorPrimary"
-        android:text="Pay by Cash"
-        android:visibility="gone" />
-
-    <!-- Go Home button (shown after payment) -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnGoHome"
-        style="@style/PrimaryButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Back to Home"
-        android:visibility="gone" />
-
-</LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
