@@ -112,6 +112,12 @@ public class AdminDashboardFragment extends Fragment {
         binding.btnNavBicycles.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.manageBicyclesFragment));
 
+        binding.btnNavMaintenance.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.adminMaintenanceFragment));
+
+        binding.cardDashMaintenance.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.adminMaintenanceFragment));
+
         binding.btnNavStations.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.manageStationsFragment));
 

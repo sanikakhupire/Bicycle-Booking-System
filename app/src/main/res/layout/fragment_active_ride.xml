@@ -323,6 +323,17 @@
                     android:backgroundTint="@color/colorPrimary"
                     android:text="📷 Scan Station QR to Return" />
 
+                <!-- Action Button 2: Report Damage / Unsafe Bicycle -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReportIssue"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="⚠️ Report Problem / Unsafe Bicycle"
+                    android:textColor="#C62828"
+                    app:strokeColor="#EF9A9A" />
+
                 <!-- Hidden — kept for backwards-compatibility -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEndRide"

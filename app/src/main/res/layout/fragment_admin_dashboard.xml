@@ -237,10 +237,13 @@
 
                 <!-- Maintenance / Damaged -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDashMaintenance"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp">
                     <LinearLayout
@@ -543,17 +546,27 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="3. Bicycle Inventory &amp; Maintenance"
+                    android:text="3. Bicycle Inventory Management"
                     android:textAlignment="textStart"
                     android:textColor="#212121"
                     app:strokeColor="#BDBDBD" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavMaintenance"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="4. Bicycle Maintenance &amp; Repair Workflow"
+                    android:textAlignment="textStart"
+                    android:textColor="#C62828"
+                    app:strokeColor="#EF9A9A" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnNavStations"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="4. Station &amp; Dock Management"
+                    android:text="5. Station &amp; Dock Management"
                     android:textAlignment="textStart"
                     android:textColor="#212121"
                     app:strokeColor="#BDBDBD" />
@@ -563,7 +576,7 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="5. Payment &amp; Revenue Analytics"
+                    android:text="6. Payment &amp; Revenue Analytics"
                     android:textAlignment="textStart"
                     android:textColor="#212121"
                     app:strokeColor="#BDBDBD" />
@@ -573,7 +586,7 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="6. Dynamic Pricing &amp; GST Rates"
+                    android:text="7. Dynamic Pricing &amp; GST Rates"
                     android:textAlignment="textStart"
                     android:textColor="#212121"
                     app:strokeColor="#BDBDBD" />
@@ -583,7 +596,7 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="7. Coupon &amp; Promotion Manager"
+                    android:text="8. Coupon &amp; Promotion Manager"
                     android:textAlignment="textStart"
                     android:textColor="#212121"
                     app:strokeColor="#BDBDBD" />
@@ -593,7 +606,7 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="8. Support Grievances &amp; Complaints"
+                    android:text="9. Support Grievances &amp; Complaints"
                     android:textAlignment="textStart"
                     android:textColor="#212121"
                     app:strokeColor="#BDBDBD" />
@@ -603,7 +616,7 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="9. Business &amp; Operations Settings"
+                    android:text="10. Business &amp; Operations Settings"
                     android:textAlignment="textStart"
                     android:textColor="#212121"
                     app:strokeColor="#BDBDBD" />

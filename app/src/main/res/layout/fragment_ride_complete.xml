@@ -421,9 +421,19 @@
             style="@style/PrimaryButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:text="Back to Home"
             android:visibility="gone" />
+
+        <!-- Report Issue Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReportIssue"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textColor="#C62828"
+            android:text="⚠️ Report Damage or Issue with Bicycle" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -103,6 +103,8 @@ public class AdminActivity extends AppCompatActivity {
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
         menu.add(0, 1007, 6, "Admin Settings")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(0, 1008, 7, "Maintenance & Repairs")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
         return true;
     }
 
@@ -131,6 +133,9 @@ public class AdminActivity extends AppCompatActivity {
             return true;
         } else if (id == 1007) {
             navController.navigate(R.id.adminSettingsFragment);
+            return true;
+        } else if (id == 1008) {
+            navController.navigate(R.id.adminMaintenanceFragment);
             return true;
         }
         return super.onOptionsItemSelected(item);

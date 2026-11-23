@@ -189,6 +189,14 @@ public class ActiveRideFragment extends Fragment implements OnMapReadyCallback {
         // 1-Tap Quick Dock button when near a station
         binding.btnDockAtStation.setOnClickListener(v -> confirmQuickDock());
 
+        // Report damage or unsafe bicycle
+        binding.btnReportIssue.setOnClickListener(v -> {
+            Bundle reportBundle = new Bundle();
+            reportBundle.putString("bicycleId", bicycleId != null ? bicycleId : "");
+            reportBundle.putString("bookingId", bookingId != null ? bookingId : "");
+            Navigation.findNavController(requireView()).navigate(R.id.reportDamageFragment, reportBundle);
+        });
+
         // Center location FAB
         binding.fabCenterLocation.setOnClickListener(v -> {
             if (googleMap != null && latestLocation != null) {

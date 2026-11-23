@@ -43,6 +43,7 @@ public class RideCompleteFragment extends Fragment {
     private BookingViewModel bookingViewModel;
 
     private String bookingId;
+    private String bicycleId;
     private float fare;
     private long durationMinutes;
     private double distanceKm = 0.0;
@@ -95,6 +96,9 @@ public class RideCompleteFragment extends Fragment {
     private void displayInvoice(Invoice invoice) {
         if (binding == null || invoice == null) return;
 
+        if (invoice.getBicycleId() != null) {
+            bicycleId = invoice.getBicycleId();
+        }
         fare = (float) invoice.getTotalAmountInr();
         durationMinutes = invoice.getDurationMinutes();
         distanceKm = invoice.getDistanceKm();
@@ -183,6 +187,7 @@ public class RideCompleteFragment extends Fragment {
                     if (!snap.exists() || binding == null) return;
                     Booking booking = snap.toObject(Booking.class);
                     if (booking != null) {
+                        bicycleId = booking.getBicycleId();
                         Invoice fallbackInvoice = BillingService.getInstance().generateInvoice(
                                 PricingConfig.getDefaultSampleConfig(),
                                 booking,
@@ -268,6 +273,13 @@ public class RideCompleteFragment extends Fragment {
         binding.btnGoHome.setOnClickListener(v -> {
             NavDirections action = RideCompleteFragmentDirections.actionRideCompleteToHome();
             Navigation.findNavController(v).navigate(action);
+        });
+
+        binding.btnReportIssue.setOnClickListener(v -> {
+            Bundle reportBundle = new Bundle();
+            reportBundle.putString("bicycleId", bicycleId != null ? bicycleId : "");
+            reportBundle.putString("bookingId", bookingId != null ? bookingId : "");
+            Navigation.findNavController(v).navigate(R.id.action_rideComplete_to_reportDamage, reportBundle);
         });
     }
 

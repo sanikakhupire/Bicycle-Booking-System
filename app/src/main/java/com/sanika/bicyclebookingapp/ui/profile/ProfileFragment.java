@@ -55,6 +55,10 @@ public class ProfileFragment extends Fragment {
             androidx.navigation.Navigation.findNavController(v).navigate(R.id.paymentHistoryFragment)
         );
 
+        binding.btnReportBicycleDamage.setOnClickListener(v ->
+            androidx.navigation.Navigation.findNavController(v).navigate(R.id.reportDamageFragment)
+        );
+
         // Admin panel button — hidden by default, shown only for admins
         binding.btnAdminPanel.setOnClickListener(v -> {
             Intent intent = new Intent(requireActivity(), AdminActivity.class);
