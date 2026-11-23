@@ -88,22 +88,49 @@ public class AdminActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(android.view.Menu menu) {
-        menu.add(0, 1001, 0, "Pricing")
-            .setIcon(android.R.drawable.ic_menu_preferences)
-            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        menu.add(0, 1002, 1, "Payments")
+        menu.add(0, 1002, 0, "Revenue")
             .setIcon(android.R.drawable.ic_menu_agenda)
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(0, 1001, 1, "Pricing")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(0, 1003, 2, "Customers")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(0, 1004, 3, "Bookings")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(0, 1005, 4, "Coupons")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(0, 1006, 5, "Support Grievances")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(0, 1007, 6, "Admin Settings")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(android.view.MenuItem item) {
-        if (item.getItemId() == 1001 && navController != null) {
+        if (navController == null) return super.onOptionsItemSelected(item);
+
+        int id = item.getItemId();
+        if (id == 1001) {
             navController.navigate(R.id.adminPricingFragment);
             return true;
-        } else if (item.getItemId() == 1002 && navController != null) {
+        } else if (id == 1002) {
             navController.navigate(R.id.adminPaymentsFragment);
+            return true;
+        } else if (id == 1003) {
+            navController.navigate(R.id.adminCustomersFragment);
+            return true;
+        } else if (id == 1004) {
+            navController.navigate(R.id.adminBookingsFragment);
+            return true;
+        } else if (id == 1005) {
+            navController.navigate(R.id.adminCouponsFragment);
+            return true;
+        } else if (id == 1006) {
+            navController.navigate(R.id.adminSupportFragment);
+            return true;
+        } else if (id == 1007) {
+            navController.navigate(R.id.adminSettingsFragment);
             return true;
         }
         return super.onOptionsItemSelected(item);

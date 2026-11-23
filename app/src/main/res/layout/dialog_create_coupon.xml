@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <EditText
+        android:id="@+id/etCouponCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Coupon Code (e.g. MONSOON20)"
+        android:inputType="textCapCharacters"
+        android:textAllCaps="true" />
+
+    <RadioGroup
+        android:id="@+id/rgDiscountType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <RadioButton
+            android:id="@+id/rbFlat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Flat (₹ Off)"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/rbPercentage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Percentage (% Off)"
+            android:layout_marginStart="16dp" />
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/etDiscountValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Discount (e.g. 15 for ₹15 or 20 for 20%)"
+        android:inputType="numberDecimal" />
+
+    <EditText
+        android:id="@+id/etMinRideFare"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Minimum Ride Fare in ₹ (e.g. 30)"
+        android:inputType="numberDecimal" />
+
+    <EditText
+        android:id="@+id/etCouponDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Description (e.g. Flat ₹15 off on your ride)"
+        android:inputType="textCapSentences" />
+
+</LinearLayout>

@@ -157,5 +157,23 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
+
+    // ─── support_tickets ───────────────────────────────────────────────────────
+    // Customers can create grievances and read their own tickets.
+    // Administrators have full read and resolution capabilities.
+    match /support_tickets/{ticketId} {
+      allow read:   if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ─── admin_settings ───────────────────────────────────────────────────────
+    // Restricted strictly to Administrators.
+    match /admin_settings/{settingsId} {
+      allow read:  if isAdmin();
+      allow write: if isAdmin();
+    }
   }
 }

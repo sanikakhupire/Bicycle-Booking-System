@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F9FAF8">
+
+    <!-- Search Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilSearchBooking"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:startIconDrawable="@android:drawable/ic_menu_search"
+        android:hint="Search by Booking ID, Bicycle, or Station">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSearchBooking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Filter Chips -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingHorizontal="16dp"
+        android:layout_marginBottom="8dp">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupBookingStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipBookAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All Bookings"
+                android:checked="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipBookPending"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pending Hold"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipBookActive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="On Active Ride"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipBookCompleted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Completed"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipBookCancelled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancelled / Expired"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <!-- Progress Bar -->
+    <ProgressBar
+        android:id="@+id/progressBarBookings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:visibility="gone" />
+
+    <!-- Empty State -->
+    <TextView
+        android:id="@+id/tvEmptyBookings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No bookings match criteria"
+        android:textAlignment="center"
+        android:textColor="#9E9E9E"
+        android:layout_marginVertical="32dp"
+        android:visibility="gone" />
+
+    <!-- Bookings Recycler -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvBookings"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        tools:listitem="@layout/item_admin_booking" />
+
+</LinearLayout>

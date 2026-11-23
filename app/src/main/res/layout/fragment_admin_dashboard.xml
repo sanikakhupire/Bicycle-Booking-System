@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F9FAF8">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="48dp">
+
+            <!-- Executive Header Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#1B5E20"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CycleGo • Executive Dashboard"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Real-time Indian rental business telemetry &amp; operations"
+                    android:textSize="12sp"
+                    android:textColor="#C8E6C9"
+                    android:layout_marginTop="2dp" />
+
+                <!-- Revenue Hero Block -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="3dp"
+                    app:cardBackgroundColor="#2E7D32">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="TODAY'S REVENUE"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:textColor="#E8F5E9" />
+
+                            <TextView
+                                android:id="@+id/tvDashTodayRevenue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="22sp"
+                                android:textStyle="bold"
+                                android:textColor="#FFFFFF"
+                                tools:text="₹1,250.00" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#4CAF50"
+                            android:layout_marginHorizontal="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="MONTHLY REVENUE"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:textColor="#E8F5E9" />
+
+                            <TextView
+                                android:id="@+id/tvDashMonthRevenue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="22sp"
+                                android:textStyle="bold"
+                                android:textColor="#FFFFFF"
+                                tools:text="₹45,800.00" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Loading Indicator -->
+            <ProgressBar
+                android:id="@+id/progressBarDashboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:visibility="gone" />
+
+            <!-- Section 1: Fleet Inventory Status -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fleet Inventory &amp; Status"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:paddingHorizontal="10dp">
+
+                <!-- Total Bicycles -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TOTAL FLEET"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#757575" />
+                        <TextView
+                            android:id="@+id/tvDashTotalBikes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="#212121"
+                            tools:text="36" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Available Bicycles -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="AVAILABLE"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E7D32" />
+                        <TextView
+                            android:id="@+id/tvDashAvailableBikes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E7D32"
+                            tools:text="24" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- In Use / Active Rides -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="IN USE / ON RIDE"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#1565C0" />
+                        <TextView
+                            android:id="@+id/tvDashInUseBikes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="#1565C0"
+                            tools:text="8" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Maintenance / Damaged -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="UNDER MAINTENANCE"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#C62828" />
+                        <TextView
+                            android:id="@+id/tvDashMaintenanceBikes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="#C62828"
+                            tools:text="4" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </GridLayout>
+
+            <!-- Section 2: Booking Operations -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Booking &amp; Trip Operations"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Today's Bookings"
+                                android:textSize="12sp"
+                                android:textColor="#757575" />
+                            <TextView
+                                android:id="@+id/tvDashTodayBookings"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#212121"
+                                tools:text="14" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Active Rides"
+                                android:textSize="12sp"
+                                android:textColor="#757575" />
+                            <TextView
+                                android:id="@+id/tvDashActiveRides"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#2E7D32"
+                                tools:text="5" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Completed"
+                                android:textSize="12sp"
+                                android:textColor="#757575" />
+                            <TextView
+                                android:id="@+id/tvDashCompletedRides"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#1565C0"
+                                tools:text="112" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Cancelled"
+                                android:textSize="12sp"
+                                android:textColor="#757575" />
+                            <TextView
+                                android:id="@+id/tvDashCancelledBookings"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#C62828"
+                                tools:text="3" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#EEEEEE"
+                        android:layout_marginVertical="12dp" />
+
+                    <!-- Insights: Top Station & Most Rented -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvDashPopularStation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textColor="#424242"
+                            tools:text="★ Most Popular Station: Shivajinagar Metro (45 rides)" />
+
+                        <TextView
+                            android:id="@+id/tvDashTopBike"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textColor="#424242"
+                            android:layout_marginTop="4dp"
+                            tools:text="🚲 Most Rented Bicycle: BIK-1002 • Electric (28 rentals)" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Section 3: Customers & Grievances -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:layout_marginTop="12dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardCustomers"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="REGISTERED USERS"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#757575" />
+                        <TextView
+                            android:id="@+id/tvDashTotalCustomers"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="#212121"
+                            tools:text="154" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Manage Customers ›"
+                            android:textSize="11sp"
+                            android:textColor="#2E7D32"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSupport"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="OPEN COMPLAINTS"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#E65100" />
+                        <TextView
+                            android:id="@+id/tvDashOpenComplaints"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="#E65100"
+                            tools:text="2" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Resolve Tickets ›"
+                            android:textSize="11sp"
+                            android:textColor="#E65100"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Section 4: Module Quick Access Grid -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Business Management Modules"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavCustomers"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1. Customer Management"
+                    android:textAlignment="textStart"
+                    android:textColor="#212121"
+                    app:strokeColor="#BDBDBD" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavBookings"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2. Booking &amp; Reservation Management"
+                    android:textAlignment="textStart"
+                    android:textColor="#212121"
+                    app:strokeColor="#BDBDBD" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavBicycles"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="3. Bicycle Inventory &amp; Maintenance"
+                    android:textAlignment="textStart"
+                    android:textColor="#212121"
+                    app:strokeColor="#BDBDBD" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavStations"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="4. Station &amp; Dock Management"
+                    android:textAlignment="textStart"
+                    android:textColor="#212121"
+                    app:strokeColor="#BDBDBD" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavPayments"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="5. Payment &amp; Revenue Analytics"
+                    android:textAlignment="textStart"
+                    android:textColor="#212121"
+                    app:strokeColor="#BDBDBD" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavPricing"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="6. Dynamic Pricing &amp; GST Rates"
+                    android:textAlignment="textStart"
+                    android:textColor="#212121"
+                    app:strokeColor="#BDBDBD" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavCoupons"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="7. Coupon &amp; Promotion Manager"
+                    android:textAlignment="textStart"
+                    android:textColor="#212121"
+                    app:strokeColor="#BDBDBD" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavSupport"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="8. Support Grievances &amp; Complaints"
+                    android:textAlignment="textStart"
+                    android:textColor="#212121"
+                    app:strokeColor="#BDBDBD" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavSettings"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="9. Business &amp; Operations Settings"
+                    android:textAlignment="textStart"
+                    android:textColor="#212121"
+                    app:strokeColor="#BDBDBD" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>
