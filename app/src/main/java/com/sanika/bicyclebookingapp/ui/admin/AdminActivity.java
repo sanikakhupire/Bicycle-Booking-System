@@ -35,6 +35,8 @@ public class AdminActivity extends AppCompatActivity {
         binding = ActivityAdminBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        com.sanika.bicyclebookingapp.util.NotificationHelper.createNotificationChannels(this);
+
         // Hide UI until admin verification succeeds
         binding.getRoot().setVisibility(View.INVISIBLE);
 
@@ -105,6 +107,8 @@ public class AdminActivity extends AppCompatActivity {
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
         menu.add(0, 1008, 7, "Maintenance & Repairs")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(0, 1009, 8, "Operational Alerts")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
         return true;
     }
 
@@ -136,6 +140,9 @@ public class AdminActivity extends AppCompatActivity {
             return true;
         } else if (id == 1008) {
             navController.navigate(R.id.adminMaintenanceFragment);
+            return true;
+        } else if (id == 1009) {
+            navController.navigate(R.id.adminNotificationsFragment);
             return true;
         }
         return super.onOptionsItemSelected(item);

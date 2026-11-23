@@ -188,5 +188,24 @@ service cloud.firestore {
       allow update: if isHandler() || isAdmin();
       allow delete: if isAdmin();
     }
+
+    // ─── notifications ────────────────────────────────────────────────────────
+    // Customers can read notifications addressed to them.
+    // Administrators can read all operational alerts ("ADMIN" or channel_admin).
+    // System and authenticated users can create notifications.
+    // Users can mark their own notifications as read. Admins can update all.
+    match /notifications/{notificationId} {
+      allow read:   if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || resource.data.userId == 'ADMIN' || isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || resource.data.userId == 'ADMIN' || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ─── user_settings ────────────────────────────────────────────────────────
+    match /users/{userId}/settings/{settingId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
   }
 }

@@ -23,6 +23,10 @@
         <action
             android:id="@+id/action_home_to_qrScan"
             app:destination="@id/qrScanFragment" />
+
+        <action
+            android:id="@+id/action_home_to_notifications"
+            app:destination="@id/notificationCenterFragment" />
     </fragment>
 
     <!-- Station Detail -->
@@ -169,6 +173,10 @@
         <action
             android:id="@+id/action_profile_to_reportDamage"
             app:destination="@id/reportDamageFragment" />
+
+        <action
+            android:id="@+id/action_profile_to_notifications"
+            app:destination="@id/notificationCenterFragment" />
     </fragment>
 
     <!-- Payment History & Invoices -->
@@ -177,6 +185,25 @@
         android:name="com.sanika.bicyclebookingapp.ui.payment.PaymentHistoryFragment"
         android:label="Payments &amp; Invoices"
         tools:layout="@layout/fragment_payment_history" />
+
+    <!-- Notification Center -->
+    <fragment
+        android:id="@+id/notificationCenterFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.notification.NotificationCenterFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notification_center">
+
+        <action
+            android:id="@+id/action_notifications_to_preferences"
+            app:destination="@id/notificationPreferencesFragment" />
+    </fragment>
+
+    <!-- Notification Preferences -->
+    <fragment
+        android:id="@+id/notificationPreferencesFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.notification.NotificationPreferencesFragment"
+        android:label="Notification Preferences"
+        tools:layout="@layout/fragment_notification_preferences" />
 
     <!-- Report Damage & Maintenance -->
     <fragment

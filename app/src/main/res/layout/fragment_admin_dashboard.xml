@@ -621,6 +621,16 @@
                     android:textColor="#212121"
                     app:strokeColor="#BDBDBD" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavNotifications"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="11. Operational Alerts &amp; Fleet Feeds"
+                    android:textAlignment="textStart"
+                    android:textColor="#1976D2"
+                    app:strokeColor="#90CAF9" />
+
             </LinearLayout>
 
         </LinearLayout>

@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.sanika.bicyclebookingapp.model.AppNotification;
 import com.sanika.bicyclebookingapp.model.Bicycle;
 import com.sanika.bicyclebookingapp.model.Booking;
 import com.sanika.bicyclebookingapp.model.Coupon;
@@ -144,6 +145,28 @@ public class BookingRepository {
                         .add(booking)
                         .addOnSuccessListener(ref -> {
                             booking.setBookingId(ref.getId());
+
+                            // Dispatch notifications on booking confirmation
+                            NotificationRepository notifRepo = new NotificationRepository(db);
+                            notifRepo.dispatchNotification(null, new AppNotification(
+                                    userId,
+                                    AppNotification.TYPE_BOOKING_CONFIRMATION,
+                                    AppNotification.CHANNEL_BOOKINGS,
+                                    "Booking Confirmed!",
+                                    "Your bicycle at " + (stationName != null ? stationName : "station") + " is reserved for 10 minutes. Scan QR to unlock.",
+                                    AppNotification.TARGET_BOOKING,
+                                    ref.getId()
+                            ));
+                            notifRepo.dispatchNotification(null, new AppNotification(
+                                    "ADMIN",
+                                    AppNotification.TYPE_ADMIN_NEW_BOOKING,
+                                    AppNotification.CHANNEL_ADMIN,
+                                    "New Reservation Created",
+                                    "Reservation created for bicycle " + bicycleId + " at " + stationName,
+                                    AppNotification.TARGET_BOOKING,
+                                    ref.getId()
+                            ));
+
                             result.setValue(Resource.success(booking));
                         })
                         .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
@@ -212,8 +235,29 @@ public class BookingRepository {
                         "available", false);
             }
 
-            return null;
-        }).addOnSuccessListener(unused -> result.setValue(Resource.success(null)))
+            return bookingSnap.getString("userId");
+        }).addOnSuccessListener(ownerId -> {
+            NotificationRepository notifRepo = new NotificationRepository(db);
+            notifRepo.dispatchNotification(null, new AppNotification(
+                    ownerId,
+                    AppNotification.TYPE_RIDE_STARTED,
+                    AppNotification.CHANNEL_RIDES,
+                    "Ride Started!",
+                    "Bicycle unlocked. Please follow road safety rules. Live GPS ride tracking active.",
+                    AppNotification.TARGET_RIDE,
+                    bookingId
+            ));
+            notifRepo.dispatchNotification(null, new AppNotification(
+                    "ADMIN",
+                    AppNotification.TYPE_ADMIN_ACTIVE_RIDE,
+                    AppNotification.CHANNEL_ADMIN,
+                    "Active Trip Started",
+                    "Trip actively started for booking BK-" + (bookingId.length() >= 8 ? bookingId.substring(0, 8).toUpperCase() : bookingId),
+                    AppNotification.TARGET_RIDE,
+                    bookingId
+            ));
+            result.setValue(Resource.success(null));
+        })
           .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
 
         return result;
@@ -371,6 +415,28 @@ public class BookingRepository {
             completedBooking.setDiscount(discount);
             completedBooking.setTax(tax);
             completedBooking.setStatus(Booking.STATUS_COMPLETED);
+
+            // Dispatch customer and admin notifications
+            NotificationRepository notifRepo = new NotificationRepository(db);
+            notifRepo.dispatchNotification(null, new AppNotification(
+                    null, // Will default to current user
+                    AppNotification.TYPE_RIDE_COMPLETED,
+                    AppNotification.CHANNEL_RIDES,
+                    "Ride Completed",
+                    "Your trip ended at " + returnStationName + ". Fare: ₹" + String.format(java.util.Locale.ENGLISH, "%.2f", fare),
+                    AppNotification.TARGET_RIDE,
+                    bookingId
+            ));
+            notifRepo.dispatchNotification(null, new AppNotification(
+                    null,
+                    AppNotification.TYPE_PAYMENT_SUCCESS,
+                    AppNotification.CHANNEL_PAYMENTS,
+                    "Payment Processed",
+                    "Settlement of ₹" + String.format(java.util.Locale.ENGLISH, "%.2f", fare) + " recorded. Invoice generated.",
+                    AppNotification.TARGET_PAYMENT,
+                    bookingId
+            ));
+
             result.setValue(Resource.success(completedBooking));
 
         }).addOnFailureListener(e ->

@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.sanika.bicyclebookingapp.model.AppNotification;
 import com.sanika.bicyclebookingapp.model.Bicycle;
 import com.sanika.bicyclebookingapp.model.MaintenanceRecord;
 import com.sanika.bicyclebookingapp.util.Resource;
@@ -89,6 +90,25 @@ public class MaintenanceRepository {
 
             return newRecordRef.getId();
         }).addOnSuccessListener(recordId -> {
+            NotificationRepository notifRepo = new NotificationRepository(db);
+            notifRepo.dispatchNotification(null, new AppNotification(
+                    record.getReportedByUserId(),
+                    AppNotification.TYPE_MAINTENANCE_ALERT,
+                    AppNotification.CHANNEL_ALERTS,
+                    "Damage Report Received",
+                    "Bicycle " + record.getBicycleId() + " has been grounded for inspection. Thank you for keeping riders safe!",
+                    AppNotification.TARGET_MAINTENANCE,
+                    record.getBicycleId()
+            ));
+            notifRepo.dispatchNotification(null, new AppNotification(
+                    "ADMIN",
+                    AppNotification.TYPE_ADMIN_DAMAGE_REPORT,
+                    AppNotification.CHANNEL_ADMIN,
+                    "⚠️ Bicycle Damage Grounding",
+                    "Bicycle " + record.getBicycleId() + " reported for " + record.getDamageCategory() + " (" + (record.isUnsafe() ? "CRITICAL" : "MEDIUM") + ")",
+                    AppNotification.TARGET_MAINTENANCE,
+                    record.getBicycleId()
+            ));
             result.setValue(Resource.success(recordId));
         }).addOnFailureListener(e -> {
             result.setValue(Resource.error("Failed to submit maintenance report: " + e.getMessage(), null));
@@ -296,6 +316,16 @@ public class MaintenanceRepository {
 
             return null;
         }).addOnSuccessListener(unused -> {
+            NotificationRepository notifRepo = new NotificationRepository(db);
+            notifRepo.dispatchNotification(null, new AppNotification(
+                    "ADMIN",
+                    AppNotification.TYPE_ADMIN_MAINTENANCE_REQUEST,
+                    AppNotification.CHANNEL_ADMIN,
+                    "Bicycle Quality Verified & Restored",
+                    "Bicycle " + bicycleId + " condition signed off and restored to AVAILABLE in station fleet.",
+                    AppNotification.TARGET_MAINTENANCE,
+                    bicycleId
+            ));
             result.setValue(Resource.success(null));
         }).addOnFailureListener(e -> {
             result.setValue(Resource.error("Failed to verify and restore bicycle: " + e.getMessage(), null));

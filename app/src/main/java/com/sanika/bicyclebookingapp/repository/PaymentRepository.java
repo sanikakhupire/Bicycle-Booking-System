@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.sanika.bicyclebookingapp.model.AppNotification;
 import com.sanika.bicyclebookingapp.model.Payment;
 import com.sanika.bicyclebookingapp.model.PaymentConfig;
 import com.sanika.bicyclebookingapp.model.Refund;
@@ -365,6 +366,16 @@ public class PaymentRepository {
                                 "refundAmountPaise", amountPaise
                         );
                     }
+                    NotificationRepository notifRepo = new NotificationRepository(db);
+                    notifRepo.dispatchNotification(null, new AppNotification(
+                            currentUid,
+                            AppNotification.TYPE_REFUND_STATUS,
+                            AppNotification.CHANNEL_PAYMENTS,
+                            "Refund Processed",
+                            "Your refund of " + CurrencyUtil.formatInr(CurrencyUtil.toRupees(amountPaise)) + " has been initiated to your account.",
+                            AppNotification.TARGET_REFUND,
+                            refundId
+                    ));
                     callback.onSuccess(refundId, CurrencyUtil.toRupees(amountPaise));
                 })
                 .addOnFailureListener(err -> callback.onError("Refund failed: " + err.getMessage()));

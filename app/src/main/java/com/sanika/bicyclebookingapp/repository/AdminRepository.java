@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.sanika.bicyclebookingapp.model.AdminSettings;
+import com.sanika.bicyclebookingapp.model.AppNotification;
 import com.sanika.bicyclebookingapp.model.Bicycle;
 import com.sanika.bicyclebookingapp.model.Booking;
 import com.sanika.bicyclebookingapp.model.Coupon;
@@ -445,7 +446,19 @@ public class AdminRepository {
         String docId = "TKT_" + System.currentTimeMillis();
         ticket.setTicketId(docId);
         db.collection(SUPPORT_COLLECTION).document(docId).set(ticket)
-                .addOnSuccessListener(v -> onSuccess.run())
+                .addOnSuccessListener(v -> {
+                    NotificationRepository notifRepo = new NotificationRepository(db);
+                    notifRepo.dispatchNotification(null, new AppNotification(
+                            "ADMIN",
+                            AppNotification.TYPE_ADMIN_CUSTOMER_COMPLAINT,
+                            AppNotification.CHANNEL_ADMIN,
+                            "New Customer Complaint",
+                            "Grievance submitted: " + ticket.getCategory() + " - " + ticket.getSubject(),
+                            AppNotification.TARGET_SUPPORT,
+                            docId
+                    ));
+                    onSuccess.run();
+                })
                 .addOnFailureListener(e -> onError.accept(e.getMessage()));
     }
 
@@ -461,7 +474,19 @@ public class AdminRepository {
                         "adminNotes", notes,
                         "resolvedBy", adminUid,
                         "resolvedAt", FieldValue.serverTimestamp())
-                .addOnSuccessListener(v -> onSuccess.run())
+                .addOnSuccessListener(v -> {
+                    NotificationRepository notifRepo = new NotificationRepository(db);
+                    notifRepo.dispatchNotification(null, new AppNotification(
+                            "ADMIN",
+                            AppNotification.TYPE_SUPPORT_TICKET_UPDATE,
+                            AppNotification.CHANNEL_ALERTS,
+                            "Grievance Ticket Resolved",
+                            "Support ticket #" + ticketId + " has been resolved with notes: " + notes,
+                            AppNotification.TARGET_SUPPORT,
+                            ticketId
+                    ));
+                    onSuccess.run();
+                })
                 .addOnFailureListener(e -> onError.accept(e.getMessage()));
     }
 
