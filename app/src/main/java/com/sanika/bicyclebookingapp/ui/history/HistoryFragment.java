@@ -154,8 +154,16 @@ public class HistoryFragment extends Fragment {
                 ? com.sanika.bicyclebookingapp.util.DateUtil.formatDateTime(booking.getEndTime())
                 : "—";
 
+        String depositStr = booking.getDepositAmount() > 0
+                ? com.sanika.bicyclebookingapp.util.CurrencyUtil.formatInr(booking.getDepositAmount())
+                : "None";
+
+        String discountStr = booking.getDiscount() > 0
+                ? "\nDiscount: -" + com.sanika.bicyclebookingapp.util.CurrencyUtil.formatInr(booking.getDiscount())
+                : "";
+
         String details = String.format(
-            "Booking Reference: %s\nStatus: %s\n\nBicycle: #%s\nPickup Station: %s\nReturn Station: %s\n\nBooked At: %s\nStarted: %s\nEnded: %s\n\nDuration: %s\nDistance: %.2f km\n\nFinal Fare: %s\nSecurity Deposit: ₹100.00",
+            "Booking Reference: %s\nStatus: %s\n\nBicycle: #%s\nPickup Station: %s\nReturn Station: %s\n\nBooked At: %s\nStarted: %s\nEnded: %s\n\nDuration: %s\nDistance: %.2f km\n\nFinal Fare: %s%s\nSecurity Deposit: %s",
             formattedRef,
             booking.getStatus(),
             bikeId,
@@ -166,7 +174,9 @@ public class HistoryFragment extends Fragment {
             endTimeStr,
             com.sanika.bicyclebookingapp.util.ValidationUtil.formatDuration(booking.getDurationMinutes()),
             booking.getDistanceKm(),
-            com.sanika.bicyclebookingapp.util.ValidationUtil.formatFare(booking.getFare())
+            com.sanika.bicyclebookingapp.util.ValidationUtil.formatFare(booking.getFare()),
+            discountStr,
+            depositStr
         );
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())

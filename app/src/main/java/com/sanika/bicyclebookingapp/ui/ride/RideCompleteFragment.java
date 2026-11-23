@@ -7,7 +7,9 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -16,11 +18,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.sanika.bicyclebookingapp.R;
 import com.sanika.bicyclebookingapp.databinding.FragmentRideCompleteBinding;
 import com.sanika.bicyclebookingapp.model.Booking;
+import com.sanika.bicyclebookingapp.model.Invoice;
+import com.sanika.bicyclebookingapp.model.PricingConfig;
+import com.sanika.bicyclebookingapp.service.BillingService;
 import com.sanika.bicyclebookingapp.ui.main.MainActivity;
-import com.sanika.bicyclebookingapp.util.AutoBillingManager;
-import com.sanika.bicyclebookingapp.util.FareCalculator;
+import com.sanika.bicyclebookingapp.util.CurrencyUtil;
 import com.sanika.bicyclebookingapp.util.UpiPaymentManager;
 import com.sanika.bicyclebookingapp.util.ValidationUtil;
+import com.sanika.bicyclebookingapp.viewmodel.BookingViewModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,15 +33,19 @@ import java.util.Map;
 /**
  * Ride summary and receipt screen.
  * Displays itemized fare breakdown in INR, GPS distance, duration,
- * pickup/return stations, deposit reconciliation, and UPI/Cash settlement.
+ * pickup/return stations, promotional discount, GST breakdown,
+ * deposit reconciliation, and UPI/Cash settlement.
  */
 public class RideCompleteFragment extends Fragment {
 
     private FragmentRideCompleteBinding binding;
+    private BookingViewModel bookingViewModel;
+
     private String bookingId;
     private float fare;
     private long durationMinutes;
     private double distanceKm = 0.0;
+    private double outstandingBalanceInr = 0.0;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -49,20 +58,144 @@ public class RideCompleteFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        bookingViewModel = new ViewModelProvider(this).get(BookingViewModel.class);
+
         RideCompleteFragmentArgs args = RideCompleteFragmentArgs.fromBundle(getArguments());
         bookingId       = args.getBookingId();
         fare            = args.getFare();
         durationMinutes = args.getDurationMinutes();
 
-        // Initial summary display from Safe Args
-        binding.tvFare.setText(ValidationUtil.formatFare(fare));
+        String refStr = "Ref: " + (bookingId != null && bookingId.length() >= 8
+                ? "BK-" + bookingId.substring(0, 8).toUpperCase() : "BK-" + bookingId);
+        binding.tvBookingRef.setText(refStr);
+
+        binding.tvFare.setText(CurrencyUtil.formatInr(fare));
         binding.tvDuration.setText(ValidationUtil.formatDuration(durationMinutes));
-        displayItemizedBreakdown(distanceKm, durationMinutes, fare);
 
-        // Fetch complete booking details from Firestore
-        loadBookingDetails();
+        loadInvoiceAndBookingDetails();
+        setupPaymentCallbacks();
+    }
 
-        // Register payment callback with MainActivity
+    private void loadInvoiceAndBookingDetails() {
+        if (bookingId == null || bookingId.isEmpty()) return;
+
+        // 1. First try loading official generated Invoice
+        bookingViewModel.getBookingInvoice(bookingId).observe(getViewLifecycleOwner(), resource -> {
+            if (binding == null) return;
+            if (resource.isSuccess() && resource.data != null) {
+                displayInvoice(resource.data);
+            } else {
+                // Fallback: load booking directly and compute breakdown
+                loadBookingFallback();
+            }
+        });
+    }
+
+    private void displayInvoice(Invoice invoice) {
+        if (binding == null || invoice == null) return;
+
+        fare = (float) invoice.getTotalAmountInr();
+        durationMinutes = invoice.getDurationMinutes();
+        distanceKm = invoice.getDistanceKm();
+
+        String pickup = invoice.getStationName() != null ? invoice.getStationName() : "Station";
+        String returnSt = invoice.getReturnStationName() != null ? invoice.getReturnStationName() : "Station";
+        binding.tvStations.setText(pickup + " → " + returnSt);
+
+        binding.tvDuration.setText(ValidationUtil.formatDuration(durationMinutes));
+        binding.tvDistance.setText(String.format("%.2f km", distanceKm));
+        binding.tvBicycleType.setText(invoice.getBicycleType() != null ? invoice.getBicycleType() : "Standard Bicycle");
+
+        // Itemized Breakdown
+        binding.tvBaseFare.setText(CurrencyUtil.formatInr(invoice.getBaseFeeInr()));
+        binding.tvDurationFare.setText(CurrencyUtil.formatInr(invoice.getUsageChargeInr()));
+        binding.tvDurationLabel.setText("Usage Charge (" + durationMinutes + " min)");
+
+        // Late fee
+        if (invoice.getLateFeeInr() > 0) {
+            binding.rowLateFee.setVisibility(View.VISIBLE);
+            binding.tvLateFee.setText(CurrencyUtil.formatInr(invoice.getLateFeeInr()));
+        } else {
+            binding.rowLateFee.setVisibility(View.GONE);
+        }
+
+        // Subtotal
+        binding.tvSubtotal.setText(CurrencyUtil.formatInr(invoice.getSubtotalInr()));
+
+        // Discount
+        if (invoice.getDiscountInr() > 0) {
+            binding.rowDiscount.setVisibility(View.VISIBLE);
+            String couponLabel = invoice.getCouponCode() != null ? " (" + invoice.getCouponCode() + ")" : "";
+            binding.tvDiscountLabel.setText("Promotional Discount" + couponLabel);
+            binding.tvDiscount.setText("-" + CurrencyUtil.formatInr(invoice.getDiscountInr()));
+        } else {
+            binding.rowDiscount.setVisibility(View.GONE);
+        }
+
+        // Tax
+        if (invoice.isTaxApplied() && invoice.getTotalTaxInr() > 0) {
+            binding.rowTax.setVisibility(View.VISIBLE);
+            binding.tvTaxLabel.setText(String.format("India GST (%.1f%%)", invoice.getTaxRatePercent()));
+            binding.tvTax.setText(CurrencyUtil.formatInr(invoice.getTotalTaxInr()));
+        } else {
+            binding.rowTax.setVisibility(View.GONE);
+        }
+
+        // Total
+        binding.tvFare.setText(CurrencyUtil.formatInr(fare));
+
+        // Settlements
+        double depositInr = invoice.getSecurityDepositInr();
+        double refundInr = invoice.getRefundAmountInr();
+        double outstandingInr = invoice.getAmountOutstandingInr();
+        outstandingBalanceInr = outstandingInr;
+
+        if (outstandingInr <= 0) {
+            // Paid or covered by deposit
+            binding.tvPaymentStatus.setText(
+                    depositInr > 0
+                            ? (refundInr > 0
+                            ? "✓ Fully covered by Security Deposit\nRefund Due: " + CurrencyUtil.formatInr(refundInr) + " to original payment method"
+                            : "✓ Fully covered by Security Deposit")
+                            : "✓ Total Fare: " + CurrencyUtil.formatInr(fare) + " (Zero Balance Due)");
+            binding.tvPaymentStatus.setTextColor(requireContext().getColor(R.color.colorAvailable));
+            binding.btnPayNow.setVisibility(View.GONE);
+            binding.btnPayCash.setVisibility(View.GONE);
+            binding.btnGoHome.setVisibility(View.VISIBLE);
+            handlePaymentSuccess("DEPOSIT_COVERED");
+        } else {
+            // Outstanding amount
+            binding.tvPaymentStatus.setText(
+                    depositInr > 0
+                            ? "Security Deposit: " + CurrencyUtil.formatInr(depositInr) + "\nTotal Fare: " + CurrencyUtil.formatInr(fare) + "\nBalance Due: " + CurrencyUtil.formatInr(outstandingInr)
+                            : "Total Amount Due: " + CurrencyUtil.formatInr(outstandingInr));
+            binding.btnPayNow.setText("Pay Balance " + CurrencyUtil.formatInr(outstandingInr) + " via UPI");
+            binding.btnPayNow.setVisibility(View.VISIBLE);
+            binding.btnPayCash.setVisibility(View.VISIBLE);
+            binding.btnGoHome.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadBookingFallback() {
+        FirebaseFirestore.getInstance().collection("bookings").document(bookingId).get()
+                .addOnSuccessListener(snap -> {
+                    if (!snap.exists() || binding == null) return;
+                    Booking booking = snap.toObject(Booking.class);
+                    if (booking != null) {
+                        Invoice fallbackInvoice = BillingService.getInstance().generateInvoice(
+                                PricingConfig.getDefaultSampleConfig(),
+                                booking,
+                                booking.getDurationMinutes() > 0 ? booking.getDurationMinutes() : durationMinutes,
+                                booking.getDistanceKm() > 0 ? booking.getDistanceKm() : distanceKm,
+                                null,
+                                booking.getDepositAmount()
+                        );
+                        displayInvoice(fallbackInvoice);
+                    }
+                });
+    }
+
+    private void setupPaymentCallbacks() {
         if (requireActivity() instanceof MainActivity) {
             ((MainActivity) requireActivity()).setPaymentCallback(
                 new MainActivity.PaymentCallback() {
@@ -78,17 +211,22 @@ public class RideCompleteFragment extends Fragment {
             );
         }
 
-        // Pay button → open UPI apps (GPay, PhonePe, Paytm, etc.)
+        // Pay button → open UPI apps (GPay, PhonePe, Paytm)
         binding.btnPayNow.setOnClickListener(v ->
             UpiPaymentManager.startUpiPayment(
-                requireActivity(), fare, bookingId, "CycleGo ride fare")
+                requireActivity(),
+                (float) (outstandingBalanceInr > 0 ? outstandingBalanceInr : fare),
+                bookingId,
+                "CycleGo ride payment"
+            )
         );
 
         // Cash payment option
         binding.btnPayCash.setOnClickListener(v -> {
-            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            double amountToPay = outstandingBalanceInr > 0 ? outstandingBalanceInr : fare;
+            new AlertDialog.Builder(requireContext())
                 .setTitle("Pay by Cash")
-                .setMessage("Please pay " + ValidationUtil.formatFare(fare)
+                .setMessage("Please pay " + CurrencyUtil.formatInr(amountToPay)
                     + " in cash to the station attendant.\n\nMark as paid?")
                 .setPositiveButton("Mark as Paid", (d, w) -> handlePaymentSuccess("CASH_" + bookingId))
                 .setNegativeButton("Cancel", null)
@@ -101,98 +239,14 @@ public class RideCompleteFragment extends Fragment {
         });
     }
 
-    private void loadBookingDetails() {
-        if (bookingId == null || bookingId.isEmpty()) return;
-
-        FirebaseFirestore.getInstance().collection("bookings").document(bookingId).get()
-                .addOnSuccessListener(snap -> {
-                    if (!snap.exists() || binding == null) return;
-
-                    Booking booking = snap.toObject(Booking.class);
-                    if (booking != null) {
-                        if (booking.getFare() > 0) {
-                            fare = (float) booking.getFare();
-                        }
-                        if (booking.getDurationMinutes() > 0) {
-                            durationMinutes = booking.getDurationMinutes();
-                        }
-                        if (booking.getDistanceKm() > 0) {
-                            distanceKm = booking.getDistanceKm();
-                        }
-
-                        // Display stations
-                        String pickup = booking.getStationName() != null ? booking.getStationName() : "Station";
-                        String returnSt = booking.getReturnStationName() != null ? booking.getReturnStationName() : "Station";
-                        binding.tvStations.setText(pickup + " → " + returnSt);
-
-                        // Update metrics
-                        binding.tvDuration.setText(ValidationUtil.formatDuration(durationMinutes));
-                        binding.tvDistance.setText(String.format("%.2f km", distanceKm));
-                        binding.tvFare.setText(ValidationUtil.formatFare(fare));
-
-                        displayItemizedBreakdown(distanceKm, durationMinutes, fare);
-                        evaluateSettlement(fare);
-                    }
-                })
-                .addOnFailureListener(e -> evaluateSettlement(fare));
-    }
-
-    private void displayItemizedBreakdown(double distance, long minutes, float totalFare) {
-        if (binding == null) return;
-
-        double base = FareCalculator.getBaseFare();
-        double distCharge = FareCalculator.getDistanceCharge(distance);
-        double timeCharge = FareCalculator.getTimeCharge(minutes * 60_000L);
-
-        binding.tvBaseFare.setText(String.format("₹%.2f", base));
-        binding.tvDistanceFare.setText(String.format("₹%.2f", distCharge));
-        binding.tvDistanceLabel.setText(String.format("Distance Charge (%.2f km @ ₹8/km)", distance));
-        binding.tvDurationFare.setText(String.format("₹%.2f", timeCharge));
-        binding.tvDurationLabel.setText(String.format("Time Charge (%d min @ ₹1/min)", minutes));
-    }
-
-    private void evaluateSettlement(float totalFare) {
-        if (binding == null) return;
-
-        double deposit = AutoBillingManager.SECURITY_DEPOSIT;
-        double settlement = AutoBillingManager.calculateFinalSettlement(totalFare, deposit, 0);
-
-        if (settlement <= 0) {
-            // Deposit covers fare — show refund
-            double refund = Math.abs(settlement);
-            binding.tvPaymentStatus.setText(
-                "Security Deposit: ₹" + (int) deposit + "\n" +
-                "Total Fare: " + ValidationUtil.formatFare(totalFare) + "\n" +
-                (refund > 0
-                    ? "✓ Refund Due: ₹" + String.format("%.2f", refund) + " (to original payment method)"
-                    : "✓ Fully Covered by Security Deposit"));
-            binding.tvPaymentStatus.setTextColor(
-                requireContext().getColor(R.color.colorAvailable));
-            binding.btnPayNow.setVisibility(View.GONE);
-            binding.btnPayCash.setVisibility(View.GONE);
-            binding.btnGoHome.setVisibility(View.VISIBLE);
-            handlePaymentSuccess("DEPOSIT_COVERED");
-        } else {
-            // User owes more than deposit
-            binding.tvPaymentStatus.setText(
-                "Security Deposit: ₹" + (int) deposit + "\n" +
-                "Total Fare: " + ValidationUtil.formatFare(totalFare) + "\n" +
-                "Balance Due: ₹" + String.format("%.2f", settlement));
-            binding.btnPayNow.setText("Pay Balance ₹" + String.format("%.2f", settlement) + " via UPI");
-            binding.btnPayNow.setVisibility(View.VISIBLE);
-            binding.btnPayCash.setVisibility(View.GONE);
-            binding.btnGoHome.setVisibility(View.GONE);
-            fare = (float) settlement;
-        }
-    }
-
     private void handlePaymentSuccess(String txnId) {
         if (binding == null) return;
 
-        // Save payment to Firestore
+        double amountRecorded = outstandingBalanceInr > 0 ? outstandingBalanceInr : fare;
+
         Map<String, Object> payment = new HashMap<>();
         payment.put("bookingId", bookingId);
-        payment.put("amount", (double) fare);
+        payment.put("amount", amountRecorded);
         payment.put("status", "SUCCESS");
         payment.put("method", txnId.startsWith("CASH") ? "CASH" : (txnId.equals("DEPOSIT_COVERED") ? "DEPOSIT" : "UPI"));
         payment.put("transactionId", txnId);

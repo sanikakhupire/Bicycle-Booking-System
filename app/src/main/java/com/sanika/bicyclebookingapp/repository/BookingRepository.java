@@ -10,7 +10,11 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.sanika.bicyclebookingapp.model.Bicycle;
 import com.sanika.bicyclebookingapp.model.Booking;
+import com.sanika.bicyclebookingapp.model.Coupon;
+import com.sanika.bicyclebookingapp.model.Invoice;
 import com.sanika.bicyclebookingapp.model.Payment;
+import com.sanika.bicyclebookingapp.model.PricingConfig;
+import com.sanika.bicyclebookingapp.service.BillingService;
 import com.sanika.bicyclebookingapp.util.Resource;
 
 import java.util.ArrayList;
@@ -50,6 +54,13 @@ public class BookingRepository {
      */
     public LiveData<Resource<Booking>> createBooking(String userId, String bicycleId,
                                                       String stationId, String stationName) {
+        return createBooking(userId, bicycleId, stationId, stationName, "Standard", null, 0.0, null);
+    }
+
+    public LiveData<Resource<Booking>> createBooking(String userId, String bicycleId,
+                                                      String stationId, String stationName,
+                                                      String bicycleType, String couponCode,
+                                                      double depositPaid, Map<String, Object> pricingSnapshot) {
         MutableLiveData<Resource<Booking>> result = new MutableLiveData<>();
         result.setValue(Resource.loading(null));
 
@@ -122,6 +133,12 @@ public class BookingRepository {
                     Booking booking = new Booking(userId, bicycleId, stationId, stationName);
                     booking.setStatus(Booking.STATUS_PENDING);
                     booking.setExpiresAt(expiresAt);
+                    booking.setBicycleType(bicycleType != null ? bicycleType : "Standard");
+                    booking.setCouponCode(couponCode);
+                    booking.setDepositAmount(depositPaid);
+                    if (pricingSnapshot != null && !pricingSnapshot.isEmpty()) {
+                        booking.setPricingSnapshot(pricingSnapshot);
+                    }
 
                     db.collection(BOOKINGS_COLLECTION)
                         .add(booking)
@@ -239,9 +256,18 @@ public class BookingRepository {
                                 ((Number) response.get("durationMinutes")).longValue();
                         double distanceKm = response.containsKey("distanceKm")
                                 ? ((Number) response.get("distanceKm")).doubleValue() : 0.0;
+                        double subtotal = response.containsKey("subtotal")
+                                ? ((Number) response.get("subtotal")).doubleValue() : fare;
+                        double discount = response.containsKey("discount")
+                                ? ((Number) response.get("discount")).doubleValue() : 0.0;
+                        double tax = response.containsKey("tax")
+                                ? ((Number) response.get("tax")).doubleValue() : 0.0;
+                        String invoiceId = response.containsKey("invoiceId")
+                                ? (String) response.get("invoiceId") : ("INV-" + System.currentTimeMillis());
                         finalizeRide(result, bookingId, bicycleId,
                                 returnStationId, returnStationName,
-                                stationGeoPoint, fare, durationMinutes, distanceKm);
+                                stationGeoPoint, fare, durationMinutes, distanceKm,
+                                invoiceId, subtotal, discount, tax);
                     })
                     .addOnFailureListener(e ->
                         // Cloud Function unavailable — calculate locally
@@ -265,7 +291,8 @@ public class BookingRepository {
                                String bookingId, String bicycleId,
                                String returnStationId, String returnStationName,
                                com.google.firebase.firestore.GeoPoint stationGeoPoint,
-                               double fare, long durationMinutes, double distanceKm) {
+                               double fare, long durationMinutes, double distanceKm,
+                               String invoiceId, double subtotal, double discount, double tax) {
 
         db.runTransaction(transaction -> {
             var bookingRef = db.collection(BOOKINGS_COLLECTION).document(bookingId);
@@ -291,6 +318,13 @@ public class BookingRepository {
             bookingUpdates.put("returnStationId", returnStationId);
             bookingUpdates.put("returnStationName", returnStationName);
             bookingUpdates.put("endedBy", "RETURN_VALIDATED");
+            if (invoiceId != null) {
+                bookingUpdates.put("invoiceId", invoiceId);
+            }
+            bookingUpdates.put("subtotal", subtotal);
+            bookingUpdates.put("discount", discount);
+            bookingUpdates.put("tax", tax);
+
             if (stationGeoPoint != null) {
                 bookingUpdates.put("dropOffLocation", stationGeoPoint);
             }
@@ -332,6 +366,10 @@ public class BookingRepository {
             completedBooking.setDistanceKm(finalDistance != null ? (double) finalDistance : distanceKm);
             completedBooking.setReturnStationId(returnStationId);
             completedBooking.setReturnStationName(returnStationName);
+            completedBooking.setInvoiceId(invoiceId);
+            completedBooking.setSubtotal(subtotal);
+            completedBooking.setDiscount(discount);
+            completedBooking.setTax(tax);
             completedBooking.setStatus(Booking.STATUS_COMPLETED);
             result.setValue(Resource.success(completedBooking));
 
@@ -371,12 +409,27 @@ public class BookingRepository {
                 double distanceKm = booking.getDistanceKm() > 0
                         ? booking.getDistanceKm() : 0;
 
-                double fare = com.sanika.bicyclebookingapp.util.FareCalculator
-                        .calculate(distanceKm, elapsedMs);
+                PricingConfig config = parsePricingConfigFromSnapshot(booking.getPricingSnapshot());
+                Coupon coupon = null;
+                if (booking.getCouponCode() != null && !booking.getCouponCode().isEmpty()) {
+                    coupon = new Coupon(booking.getCouponCode(), Coupon.TYPE_FLAT, 1000L, "Discount");
+                }
+
+                Invoice invoice = BillingService.getInstance().generateInvoice(
+                        config,
+                        booking,
+                        durationMinutes,
+                        distanceKm,
+                        coupon,
+                        booking.getDepositAmount()
+                );
+
+                db.collection("invoices").document(invoice.getInvoiceId()).set(invoice);
 
                 finalizeRide(result, bookingId, bicycleId,
                         returnStationId, returnStationName,
-                        stationGeoPoint, fare, durationMinutes, distanceKm);
+                        stationGeoPoint, invoice.getTotalAmountInr(), durationMinutes, distanceKm,
+                        invoice.getInvoiceId(), invoice.getSubtotalInr(), invoice.getDiscountInr(), invoice.getTotalTaxInr());
             })
             .addOnFailureListener(e ->
                 result.setValue(Resource.error(e.getMessage(), null)));
@@ -545,5 +598,98 @@ public class BookingRepository {
           .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
 
         return result;
+    }
+
+    public LiveData<Resource<Invoice>> getInvoice(String invoiceId) {
+        MutableLiveData<Resource<Invoice>> result = new MutableLiveData<>();
+        result.setValue(Resource.loading(null));
+
+        if (invoiceId == null || invoiceId.isEmpty()) {
+            result.setValue(Resource.error("Invoice ID is required", null));
+            return result;
+        }
+
+        db.collection("invoices").document(invoiceId).get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.exists()) {
+                        Invoice inv = snap.toObject(Invoice.class);
+                        if (inv != null) {
+                            inv.setInvoiceId(snap.getId());
+                            result.setValue(Resource.success(inv));
+                            return;
+                        }
+                    }
+                    result.setValue(Resource.error("Invoice not found", null));
+                })
+                .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
+
+        return result;
+    }
+
+    public LiveData<Resource<Invoice>> getBookingInvoice(String bookingId) {
+        MutableLiveData<Resource<Invoice>> result = new MutableLiveData<>();
+        result.setValue(Resource.loading(null));
+
+        if (bookingId == null || bookingId.isEmpty()) {
+            result.setValue(Resource.error("Booking ID is required", null));
+            return result;
+        }
+
+        db.collection("invoices").whereEqualTo("bookingId", bookingId).limit(1).get()
+                .addOnSuccessListener(snaps -> {
+                    if (snaps != null && !snaps.isEmpty()) {
+                        Invoice inv = snaps.getDocuments().get(0).toObject(Invoice.class);
+                        if (inv != null) {
+                            inv.setInvoiceId(snaps.getDocuments().get(0).getId());
+                            result.setValue(Resource.success(inv));
+                            return;
+                        }
+                    }
+                    result.setValue(Resource.error("Invoice not found", null));
+                })
+                .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
+
+        return result;
+    }
+
+    private PricingConfig parsePricingConfigFromSnapshot(Map<String, Object> snapshot) {
+        if (snapshot == null || snapshot.isEmpty()) {
+            return PricingConfig.getDefaultSampleConfig();
+        }
+        PricingConfig config = new PricingConfig();
+        if (snapshot.get("baseFeePaise") instanceof Number) {
+            config.setBaseFeePaise(((Number) snapshot.get("baseFeePaise")).longValue());
+        }
+        if (snapshot.get("ratePerMinutePaise") instanceof Number) {
+            config.setRatePerMinutePaise(((Number) snapshot.get("ratePerMinutePaise")).longValue());
+        }
+        if (snapshot.get("ratePerHourPaise") instanceof Number) {
+            config.setRatePerHourPaise(((Number) snapshot.get("ratePerHourPaise")).longValue());
+        }
+        if (snapshot.get("minimumFarePaise") instanceof Number) {
+            config.setMinimumFarePaise(((Number) snapshot.get("minimumFarePaise")).longValue());
+        }
+        if (snapshot.get("maximumDurationMinutes") instanceof Number) {
+            config.setMaximumDurationMinutes(((Number) snapshot.get("maximumDurationMinutes")).intValue());
+        }
+        if (snapshot.get("lateFeePerHourPaise") instanceof Number) {
+            config.setLateFeePerHourPaise(((Number) snapshot.get("lateFeePerHourPaise")).longValue());
+        }
+        if (snapshot.get("taxEnabled") instanceof Boolean) {
+            config.setTaxEnabled((Boolean) snapshot.get("taxEnabled"));
+        }
+        if (snapshot.get("taxPercentage") instanceof Number) {
+            config.setTaxPercentage(((Number) snapshot.get("taxPercentage")).doubleValue());
+        }
+        if (snapshot.get("standardCategoryMultiplier") instanceof Number) {
+            config.setStandardCategoryMultiplier(((Number) snapshot.get("standardCategoryMultiplier")).doubleValue());
+        }
+        if (snapshot.get("electricCategoryMultiplier") instanceof Number) {
+            config.setElectricCategoryMultiplier(((Number) snapshot.get("electricCategoryMultiplier")).doubleValue());
+        }
+        if (snapshot.get("mountainCategoryMultiplier") instanceof Number) {
+            config.setMountainCategoryMultiplier(((Number) snapshot.get("mountainCategoryMultiplier")).doubleValue());
+        }
+        return config;
     }
 }

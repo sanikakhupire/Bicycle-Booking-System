@@ -22,7 +22,7 @@
             android:src="@drawable/ic_back"
             android:contentDescription="Back"
             android:padding="8dp"
-            android:tint="@color/white" />
+            app:tint="@color/white" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -50,7 +50,7 @@
                 style="@style/CardStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="14dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -108,7 +108,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pricing Breakdown (INR)"
+                        android:text="Applicable India Pricing (INR / ₹)"
                         android:textColor="@color/colorTextPrimary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -119,7 +119,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:lineSpacingExtra="3dp"
-                        android:text="• Base Unlock Fee: ₹5.00\n• Per-Minute Charge: ₹1.00 / min\n• Per-KM Charge: ₹8.00 / km\n• Minimum Fare: ₹10.00"
+                        android:text="• Base Fee: ₹10.00\n• Per-Minute Rate: ₹2.00 / min\n• Per-Hour Rate: ₹60.00 / hr\n• Minimum Charge: ₹20.00"
                         android:textColor="@color/colorTextSecondary"
                         android:textSize="13sp" />
 
@@ -134,9 +134,74 @@
                         android:id="@+id/tvDeposit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="Security Deposit: ₹0.00"
                         android:textColor="@color/colorPrimary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Coupon / Promotional Code Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/CardStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Apply Coupon / Promotion"
+                        android:textColor="@color/colorTextPrimary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Coupon Code (e.g. WELCOME10)"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCouponCode"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textCapCharacters"
+                                android:maxLines="1" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnApplyCoupon"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Apply" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvCouponStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="@color/colorAvailable"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -146,7 +211,7 @@
                 style="@style/CardStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="14dp"
                 app:cardBackgroundColor="#FFF8E1">
 
                 <LinearLayout
@@ -164,10 +229,11 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvCancellationPolicy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="• Free cancellation anytime during the 10-minute hold window before unlocking the bicycle.\n• If you do not scan and unlock within 10 minutes, the bicycle is released automatically with full deposit return."
+                        android:text="• Free cancellation anytime during the 10-minute hold window before unlocking the bicycle.\n• If you do not scan and unlock within 10 minutes, the bicycle is released automatically."
                         android:textColor="#5D4037"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -183,8 +249,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Once confirmed, a 10-minute reservation countdown will begin. Scan the QR code on the bicycle to unlock and start riding."
+                    android:padding="14dp"
+                    android:text="Once confirmed, a 10-minute reservation countdown will begin. Scan the QR code on the bicycle at the station to unlock and start riding."
                     android:textColor="@color/colorPrimary"
                     android:textSize="13sp" />
             </com.google.android.material.card.MaterialCardView>

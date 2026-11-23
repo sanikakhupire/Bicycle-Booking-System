@@ -85,7 +85,7 @@ public class ValidationUtil {
     }
 
     public static String formatFare(double fare) {
-        return String.format("₹%.2f", fare);
+        return CurrencyUtil.formatInr(fare);
     }
 
     public static String formatDuration(long minutes) {

@@ -109,5 +109,34 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
+
+    // ─── pricing_config ───────────────────────────────────────────────────────
+    // All authenticated users can read the current pricing rates.
+    // Only Administrators can update or configure pricing.
+    match /pricing_config/{configId} {
+      allow read:  if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ─── coupons ──────────────────────────────────────────────────────────────
+    // Customers can read active coupons to apply promotional discounts.
+    // Only Administrators can create, edit, or delete coupons.
+    match /coupons/{couponId} {
+      allow read:  if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ─── invoices ─────────────────────────────────────────────────────────────
+    // Customers can read their own invoices; Admins can view all.
+    // Customers can create an invoice record upon completing a ride.
+    // Deletions and modifications are restricted to Admins to maintain audit trails.
+    match /invoices/{invoiceId} {
+      allow read:   if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
   }
 }

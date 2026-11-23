@@ -59,18 +59,112 @@ exports.calculateFare = functions.https.onCall(async (data, context) => {
     const durationMs = Math.max(0, endTime - startTime);
     const durationMinutes = Math.max(1, Math.floor(durationMs / 60000));
 
-    // Fare calculation aligned with base: ₹5 base + ₹8/km + ₹1/min, min ₹10
-    const distanceKm = Math.min(booking.distanceKm || 0, 200.0);
-    const baseFare = 5.0;
-    const ratePerKm = 8.0;
-    const ratePerMin = 1.0;
-    const minFare = 10.0;
+    // Fetch pricing configuration snapshot or default config
+    let pricing = booking.pricingSnapshot;
+    if (!pricing) {
+      const configSnap = await db.collection('pricing_config').doc('default').get();
+      if (configSnap.exists) {
+        pricing = configSnap.data();
+      } else {
+        pricing = {
+          baseFeePaise: 1000,
+          ratePerMinutePaise: 200,
+          ratePerHourPaise: 6000,
+          minimumFarePaise: 2000,
+          maximumDurationMinutes: 720,
+          lateFeePerHourPaise: 5000,
+          taxEnabled: false,
+          taxPercentage: 5.0,
+          standardCategoryMultiplier: 1.0,
+          electricCategoryMultiplier: 1.5,
+          mountainCategoryMultiplier: 1.25
+        };
+      }
+    }
 
-    let fare = baseFare + (distanceKm * ratePerKm) + (durationMinutes * ratePerMin);
-    fare = Math.max(fare, minFare);
-    fare = Math.round(fare * 100.0) / 100.0;
+    // Category multiplier
+    const category = (booking.bicycleType || 'Standard').toUpperCase();
+    let multiplier = 1.0;
+    if (category.includes('ELECTRIC') || category.includes('E-BIKE')) {
+      multiplier = pricing.electricCategoryMultiplier || 1.5;
+    } else if (category.includes('MOUNTAIN') || category.includes('GEARED')) {
+      multiplier = pricing.mountainCategoryMultiplier || 1.25;
+    } else {
+      multiplier = pricing.standardCategoryMultiplier || 1.0;
+    }
 
-    return { fare, durationMinutes };
+    // Base fee
+    const baseFeePaise = pricing.baseFeePaise || 1000;
+
+    // Usage charge
+    let usageChargePaise = 0;
+    const ratePerMin = pricing.ratePerMinutePaise || 200;
+    const ratePerHour = pricing.ratePerHourPaise || 6000;
+    if (durationMinutes < 60) {
+      usageChargePaise = Math.round(durationMinutes * ratePerMin * multiplier);
+    } else {
+      const hours = Math.floor(durationMinutes / 60);
+      const remMins = durationMinutes % 60;
+      let minComp = remMins * ratePerMin;
+      minComp = Math.min(minComp, ratePerHour);
+      usageChargePaise = Math.round(((hours * ratePerHour) + minComp) * multiplier);
+    }
+
+    // Late return penalty
+    let lateFeePaise = 0;
+    const maxDuration = pricing.maximumDurationMinutes || 720;
+    if (maxDuration > 0 && durationMinutes > maxDuration) {
+      const lateMins = durationMinutes - maxDuration;
+      const lateHours = Math.ceil(lateMins / 60);
+      lateFeePaise = lateHours * (pricing.lateFeePerHourPaise || 5000);
+    }
+
+    // Subtotal
+    const subtotalPaise = baseFeePaise + usageChargePaise + lateFeePaise;
+
+    // Coupon discount if present
+    let discountPaise = 0;
+    if (booking.couponCode) {
+      const couponSnap = await db.collection('coupons').where('code', '==', booking.couponCode.toUpperCase()).limit(1).get();
+      if (!couponSnap.empty) {
+        const cData = couponSnap.docs[0].data();
+        if (cData.active) {
+          if (cData.discountType === 'PERCENTAGE') {
+            discountPaise = Math.round(subtotalPaise * (cData.discountPercentage / 100.0));
+            if (cData.maxDiscountPaise > 0) discountPaise = Math.min(discountPaise, cData.maxDiscountPaise);
+          } else {
+            discountPaise = Math.min(cData.discountValuePaise || 1000, subtotalPaise);
+          }
+        }
+      }
+    }
+
+    // Minimum ride fare guarantee
+    const minimumFarePaise = pricing.minimumFarePaise || 2000;
+    const afterDiscount = Math.max(0, subtotalPaise - discountPaise);
+    const taxablePaise = Math.max(minimumFarePaise, afterDiscount);
+
+    // Taxes (GST)
+    let totalTaxPaise = 0;
+    if (pricing.taxEnabled && pricing.taxPercentage > 0) {
+      totalTaxPaise = Math.round(taxablePaise * (pricing.taxPercentage / 100.0));
+    }
+
+    const totalFarePaise = taxablePaise + totalTaxPaise;
+    const fare = Math.round(totalFarePaise) / 100.0;
+    const subtotal = Math.round(subtotalPaise) / 100.0;
+    const discount = Math.round(discountPaise) / 100.0;
+    const tax = Math.round(totalTaxPaise) / 100.0;
+
+    return {
+      fare,
+      durationMinutes,
+      subtotal,
+      discount,
+      tax,
+      totalFarePaise,
+      distanceKm: booking.distanceKm || 0.0
+    };
   } catch (error) {
     console.error('Error calculating fare:', error);
     throw new functions.https.HttpsError('internal', error.message);

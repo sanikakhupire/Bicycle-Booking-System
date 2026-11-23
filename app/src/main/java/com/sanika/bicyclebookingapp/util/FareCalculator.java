@@ -1,9 +1,14 @@
 package com.sanika.bicyclebookingapp.util;
 
+import com.sanika.bicyclebookingapp.model.Coupon;
+import com.sanika.bicyclebookingapp.model.Invoice;
+import com.sanika.bicyclebookingapp.model.PricingConfig;
+import com.sanika.bicyclebookingapp.service.BillingService;
+
 /**
  * Fare calculation engine.
  *
- * Formula:
+ * Formula (Legacy / Fallback):
  *   fare = BASE_FARE + (distanceKm * RATE_PER_KM) + (minutes * RATE_PER_MIN)
  *
  * Rates:
@@ -12,9 +17,8 @@ package com.sanika.bicyclebookingapp.util;
  *   Per minute : ₹1   per minute
  *   Minimum    : ₹10  (minimum charge for any ride)
  *
- * Example:
- *   3 km ride, 20 minutes = ₹5 + (3 × ₹8) + (20 × ₹1) = ₹49
- *   1 min test ride, 0 km = max(₹10, ₹5 + 0 + ₹1) = ₹10
+ * Phase 4 dynamic pricing is handled via {@link BillingService} with configurable
+ * rates, category multipliers, paise precision, and GST tax calculations.
  */
 public class FareCalculator {
 
@@ -29,7 +33,7 @@ public class FareCalculator {
     private FareCalculator() {}
 
     /**
-     * Calculate fare based on distance and elapsed time.
+     * Calculate fare based on distance and elapsed time (backward-compatible).
      *
      * @param distanceKm  Total distance travelled in kilometres (GPS-tracked)
      * @param elapsedMs   Total elapsed time in milliseconds
@@ -48,6 +52,23 @@ public class FareCalculator {
         return Math.round(fare * 100.0) / 100.0;
     }
 
+    /**
+     * Calculate fare based on a specific PricingConfig, category, distance, and elapsed time (Phase 4).
+     */
+    public static double calculate(PricingConfig config, String category,
+                                   double distanceKm, long elapsedMs, Coupon coupon) {
+        long minutes = Math.max(0, elapsedMs / 60000);
+        Invoice invoice = BillingService.getInstance().generateInvoice(
+                config,
+                null,
+                minutes,
+                distanceKm,
+                coupon,
+                0.0
+        );
+        return invoice.getTotalAmountInr();
+    }
+
     public static double getBaseFare() {
         return BASE_FARE;
     }
@@ -63,7 +84,7 @@ public class FareCalculator {
     }
 
     public static long calculatePaise(double distanceKm, long elapsedMs) {
-        return Math.round(calculate(distanceKm, elapsedMs) * 100.0);
+        return CurrencyUtil.toPaise(calculate(distanceKm, elapsedMs));
     }
 
     public static String getBreakdown(double distanceKm, long elapsedMs) {

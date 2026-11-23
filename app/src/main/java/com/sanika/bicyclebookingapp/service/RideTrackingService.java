@@ -325,7 +325,7 @@ public class RideTrackingService extends Service {
     }
 
     private void updateNotification(double fare, double distanceKm) {
-        String fareText = String.format("₹%.2f", fare);
+        String fareText = com.sanika.bicyclebookingapp.util.CurrencyUtil.formatInr(fare);
         String distText = String.format("%.2f km", distanceKm);
         NotificationManager manager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:paddingBottom="96dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pricing &amp; Billing Settings"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Configure Indian Rupee (INR / ₹) rates, GST, deposits, and bicycle category multipliers."
+            android:textColor="@color/colorTextSecondary"
+            android:textSize="13sp" />
+
+        <!-- Sample Configuration Alert Notice -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSampleNotice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#FFF8E1"
+            app:strokeColor="#FFE082"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ℹ️ SAMPLE CONFIGURATION: Development sample rates are active. Save your business rates below."
+                    android:textColor="#F57F17"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- SECTION 1: Base & Usage Rates -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="1. RENTAL &amp; USAGE RATES (INR)"
+            android:textColor="@color/colorPrimary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <!-- Base Booking Fee -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Base Booking Fee (₹)"
+            app:startIconDrawable="@drawable/ic_bicycle"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etBaseFee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="10.00" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Per Minute Rate -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Per-Minute Rental Rate (₹/min)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etRatePerMin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="2.00" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Per Hour Rate -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Per-Hour Rental Rate (₹/hr)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etRatePerHour"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="60.00" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Minimum Ride Charge -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Minimum Ride Charge (₹)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etMinCharge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="20.00" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Maximum Continuous Duration -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Maximum Continuous Duration (Hours)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etMaxDurationHours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="12" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- SECTION 2: Penalties and Fees -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="2. PENALTIES &amp; CANCELLATION (INR)"
+            android:textColor="@color/colorPrimary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <!-- Late Fee -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Late-Return Fee (₹/hour after max duration)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etLateFeePerHour"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="50.00" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Cancellation Fee -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Cancellation Fee (₹)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCancellationFee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="10.00" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- SECTION 3: Security Deposit -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="3. SECURITY DEPOSIT (INR)"
+            android:textColor="@color/colorPrimary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Require Refundable Security Deposit"
+                android:textColor="@color/colorTextPrimary"
+                android:textSize="14sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchSecurityDeposit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutSecurityDeposit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:hint="Security Deposit Amount (₹)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSecurityDeposit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="100.00" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- SECTION 4: Tax / GST Configuration -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="4. TAX &amp; GST CONFIGURATION"
+            android:textColor="@color/colorPrimary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Enable India GST Billing"
+                android:textColor="@color/colorTextPrimary"
+                android:textSize="14sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchTax"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutTaxPercentage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:hint="GST Percentage (% e.g. 5.0 or 18.0)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTaxPercentage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="5.0" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- SECTION 5: Bicycle Category Multipliers -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="5. BICYCLE CATEGORY MULTIPLIERS"
+            android:textColor="@color/colorPrimary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <!-- Standard Multiplier -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Standard Bicycle Rate Multiplier (1.0x)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etStandardMultiplier"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="1.0" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Electric Multiplier -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Electric Bicycle Rate Multiplier (e.g. 1.5x)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etElectricMultiplier"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="1.5" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Mountain Multiplier -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Mountain / Geared Rate Multiplier (e.g. 1.25x)"
+            app:boxStrokeColor="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etMountainMultiplier"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="1.25" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:visibility="gone" />
+
+        <!-- Save Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSavePricing"
+            style="@style/PrimaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Save Pricing Configuration" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

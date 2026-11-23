@@ -5,7 +5,9 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ServerTimestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a booking in Firestore collection "bookings".
@@ -46,6 +48,16 @@ public class Booking {
     private String endedBy;
     private String paymentStatus;
     private String paymentTxnId;
+
+    // Phase 4 Pricing & Invoicing fields
+    private String invoiceId;
+    private String couponCode;
+    private String bicycleType = "Standard";
+    private double subtotal;
+    private double discount;
+    private double tax;
+    private double depositAmount;
+    private Map<String, Object> pricingSnapshot = new HashMap<>();
 
     // Required empty constructor for Firestore
     public Booking() {}
@@ -130,4 +142,30 @@ public class Booking {
 
     public String getPaymentTxnId() { return paymentTxnId; }
     public void setPaymentTxnId(String paymentTxnId) { this.paymentTxnId = paymentTxnId; }
+
+    public String getInvoiceId() { return invoiceId; }
+    public void setInvoiceId(String invoiceId) { this.invoiceId = invoiceId; }
+
+    public String getCouponCode() { return couponCode; }
+    public void setCouponCode(String couponCode) { this.couponCode = couponCode; }
+
+    public String getBicycleType() { return bicycleType; }
+    public void setBicycleType(String bicycleType) { this.bicycleType = bicycleType; }
+
+    public double getSubtotal() { return subtotal; }
+    public void setSubtotal(double subtotal) { this.subtotal = subtotal; }
+
+    public double getDiscount() { return discount; }
+    public void setDiscount(double discount) { this.discount = discount; }
+
+    public double getTax() { return tax; }
+    public void setTax(double tax) { this.tax = tax; }
+
+    public double getDepositAmount() { return depositAmount; }
+    public void setDepositAmount(double depositAmount) { this.depositAmount = depositAmount; }
+
+    public Map<String, Object> getPricingSnapshot() { return pricingSnapshot; }
+    public void setPricingSnapshot(Map<String, Object> pricingSnapshot) {
+        this.pricingSnapshot = pricingSnapshot != null ? pricingSnapshot : new HashMap<>();
+    }
 }

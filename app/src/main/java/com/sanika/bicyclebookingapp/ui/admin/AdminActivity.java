@@ -87,6 +87,23 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        menu.add(0, 1001, 0, "Pricing & Billing")
+            .setIcon(android.R.drawable.ic_menu_preferences)
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        if (item.getItemId() == 1001 && navController != null) {
+            navController.navigate(R.id.adminPricingFragment);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onSupportNavigateUp() {
         return (navController != null && navController.navigateUp()) || super.onSupportNavigateUp();
     }

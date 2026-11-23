@@ -35,4 +35,10 @@
         android:label="All Rides"
         tools:layout="@layout/fragment_all_rides_history" />
 
+    <fragment
+        android:id="@+id/adminPricingFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.admin.AdminPricingFragment"
+        android:label="Pricing &amp; Billing"
+        tools:layout="@layout/fragment_admin_pricing" />
+
 </navigation>

@@ -4,10 +4,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.sanika.bicyclebookingapp.model.Booking;
+import com.sanika.bicyclebookingapp.model.Invoice;
 import com.sanika.bicyclebookingapp.repository.BookingRepository;
 import com.sanika.bicyclebookingapp.util.Resource;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * ViewModel for booking lifecycle screens.
@@ -23,6 +25,22 @@ public class BookingViewModel extends ViewModel {
     public LiveData<Resource<Booking>> createBooking(String userId, String bicycleId,
                                                       String stationId, String stationName) {
         return bookingRepository.createBooking(userId, bicycleId, stationId, stationName);
+    }
+
+    public LiveData<Resource<Booking>> createBooking(String userId, String bicycleId,
+                                                      String stationId, String stationName,
+                                                      String bicycleType, String couponCode,
+                                                      double depositPaid, Map<String, Object> pricingSnapshot) {
+        return bookingRepository.createBooking(userId, bicycleId, stationId, stationName,
+                bicycleType, couponCode, depositPaid, pricingSnapshot);
+    }
+
+    public LiveData<Resource<Invoice>> getInvoice(String invoiceId) {
+        return bookingRepository.getInvoice(invoiceId);
+    }
+
+    public LiveData<Resource<Invoice>> getBookingInvoice(String bookingId) {
+        return bookingRepository.getBookingInvoice(bookingId);
     }
 
     public LiveData<Resource<Void>> startRide(String bookingId) {
