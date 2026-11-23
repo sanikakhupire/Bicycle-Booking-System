@@ -177,6 +177,10 @@
         <action
             android:id="@+id/action_profile_to_notifications"
             app:destination="@id/notificationCenterFragment" />
+
+        <action
+            android:id="@+id/action_profile_to_helpCenter"
+            app:destination="@id/helpCenterFragment" />
     </fragment>
 
     <!-- Payment History & Invoices -->
@@ -220,6 +224,75 @@
             android:name="bookingId"
             app:argType="string"
             android:defaultValue="" />
+    </fragment>
+
+    <!-- Help Center & FAQs -->
+    <fragment
+        android:id="@+id/helpCenterFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.support.HelpCenterFragment"
+        android:label="Help &amp; Support"
+        tools:layout="@layout/fragment_help_center">
+
+        <action
+            android:id="@+id/action_helpCenter_to_createTicket"
+            app:destination="@id/createTicketFragment" />
+
+        <action
+            android:id="@+id/action_helpCenter_to_customerTickets"
+            app:destination="@id/customerTicketsFragment" />
+    </fragment>
+
+    <!-- Create Ticket / Grievance -->
+    <fragment
+        android:id="@+id/createTicketFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.support.CreateTicketFragment"
+        android:label="Create Support Ticket"
+        tools:layout="@layout/fragment_create_ticket">
+
+        <argument
+            android:name="category"
+            app:argType="string"
+            android:defaultValue="GENERAL" />
+        <argument
+            android:name="bookingId"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="bicycleId"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="disputedAmount"
+            app:argType="float"
+            android:defaultValue="0.0" />
+    </fragment>
+
+    <!-- Customer Ticket History -->
+    <fragment
+        android:id="@+id/customerTicketsFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.support.CustomerTicketsFragment"
+        android:label="My Support Tickets"
+        tools:layout="@layout/fragment_customer_tickets">
+
+        <action
+            android:id="@+id/action_customerTickets_to_ticketDetail"
+            app:destination="@id/ticketDetailFragment" />
+
+        <action
+            android:id="@+id/action_customerTickets_to_createTicket"
+            app:destination="@id/createTicketFragment" />
+    </fragment>
+
+    <!-- Ticket Detail & Threaded Chat -->
+    <fragment
+        android:id="@+id/ticketDetailFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.support.TicketDetailFragment"
+        android:label="Grievance Detail"
+        tools:layout="@layout/fragment_ticket_detail">
+
+        <argument
+            android:name="ticketId"
+            app:argType="string" />
     </fragment>
 
 </navigation>

@@ -132,6 +132,16 @@
                 android:text="Notifications &amp; Alerts" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHelpCenter"
+                style="@style/SecondaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Help Center &amp; Support"
+                android:textColor="#1B5E20"
+                app:strokeColor="#A5D6A7" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReportBicycleDamage"
                 style="@style/SecondaryButton"
                 android:layout_width="match_parent"

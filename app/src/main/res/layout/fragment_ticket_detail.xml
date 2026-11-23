@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9FAF8">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarTicketDetail"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#1B5E20"
+            app:title="Grievance Details"
+            app:titleTextColor="@android:color/white"
+            app:navigationIcon="@drawable/ic_back" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <!-- Ticket Overview Card (collapsible or compact) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardTicketOverview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="2dp"
+            android:backgroundTint="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvDetailTicketId"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#1B5E20"
+                        tools:text="#TKT-9B6D7E" />
+
+                    <TextView
+                        android:id="@+id/tvDetailStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="3dp"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:background="#FFF3E0"
+                        android:textColor="#E65100"
+                        tools:text="IN_PROGRESS" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvDetailSubject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#212121"
+                    android:layout_marginTop="6dp"
+                    tools:text="Incorrect ride fare deducted for Booking #BK-202" />
+
+                <!-- Badges row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="6dp">
+
+                    <TextView
+                        android:id="@+id/tvDetailCategory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#E8F5E9"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="#2E7D32"
+                        android:layout_marginEnd="6dp"
+                        tools:text="REFUND_REQUEST" />
+
+                    <TextView
+                        android:id="@+id/tvDetailPriority"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#F5F5F5"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="#616161"
+                        android:layout_marginEnd="6dp"
+                        tools:text="HIGH" />
+
+                    <TextView
+                        android:id="@+id/tvDetailStaff"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="#757575"
+                        tools:text="Assigned: Support Agent 1" />
+                </LinearLayout>
+
+                <!-- Context row if applicable -->
+                <TextView
+                    android:id="@+id/tvDetailContext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="#E65100"
+                    android:layout_marginTop="6dp"
+                    android:visibility="gone"
+                    tools:text="Linked Ride: BK-202 • Bicycle: BIK-101 • Disputed: ₹45.00" />
+
+                <!-- Resolution Card if Resolved -->
+                <LinearLayout
+                    android:id="@+id/layoutResolutionSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#E8F5E9"
+                    android:padding="10dp"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Resolution Summary:"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#2E7D32" />
+
+                    <TextView
+                        android:id="@+id/tvResolutionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textColor="#1B5E20"
+                        android:layout_marginTop="2dp"
+                        tools:text="Refund initiated to your UPI account. Ref: RFND-1029384." />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Reopen banner (shown when ticket is RESOLVED or CLOSED) -->
+        <LinearLayout
+            android:id="@+id/layoutReopenBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="#FFF3E0"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Issue not resolved to satisfaction?"
+                android:textSize="12sp"
+                android:textColor="#E65100" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReopenTicket"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Reopen Ticket"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:backgroundTint="#E65100"
+                app:cornerRadius="8dp" />
+        </LinearLayout>
+
+        <!-- Conversation Messages Thread -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTicketMessages"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingVertical="8dp"
+            tools:listitem="@layout/item_ticket_message" />
+
+        <ProgressBar
+            android:id="@+id/progressBarMessages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <!-- Bottom Reply Bar -->
+        <LinearLayout
+            android:id="@+id/layoutReplyBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:elevation="6dp"
+            android:padding="8dp">
+
+            <!-- Reply attachment thumbnail if chosen -->
+            <LinearLayout
+                android:id="@+id/layoutReplyAttachmentPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="4dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/ivReplyAttachmentThumb"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:scaleType="centerCrop"
+                    android:background="#EEEEEE" />
+
+                <TextView
+                    android:id="@+id/tvReplyAttachmentName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="photo.jpg"
+                    android:textSize="11sp"
+                    android:layout_marginStart="8dp"
+                    android:maxLines="1" />
+
+                <ImageButton
+                    android:id="@+id/btnRemoveReplyAttachment"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Remove photo" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageButton
+                    android:id="@+id/btnAttachReplyPhoto"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_camera"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Attach image" />
+
+                <EditText
+                    android:id="@+id/etReplyMessage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_border"
+                    android:hint="Type reply or grievance update..."
+                    android:textSize="13sp"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp"
+                    android:maxLines="4"
+                    android:layout_marginHorizontal="6dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSendReply"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:text="Send"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:backgroundTint="#1B5E20"
+                    app:cornerRadius="10dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

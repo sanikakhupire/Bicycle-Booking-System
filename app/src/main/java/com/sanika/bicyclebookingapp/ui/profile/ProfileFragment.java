@@ -59,6 +59,10 @@ public class ProfileFragment extends Fragment {
             androidx.navigation.Navigation.findNavController(v).navigate(R.id.notificationCenterFragment)
         );
 
+        binding.btnHelpCenter.setOnClickListener(v ->
+            androidx.navigation.Navigation.findNavController(v).navigate(R.id.helpCenterFragment)
+        );
+
         binding.btnReportBicycleDamage.setOnClickListener(v ->
             androidx.navigation.Navigation.findNavController(v).navigate(R.id.reportDamageFragment)
         );

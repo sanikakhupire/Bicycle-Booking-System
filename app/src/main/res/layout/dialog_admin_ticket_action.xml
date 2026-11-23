@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Title & Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvAdminDialogTicketId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#1B5E20"
+                tools:text="#TKT-1002" />
+
+            <TextView
+                android:id="@+id/tvAdminDialogStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:background="#FFF3E0"
+                android:textColor="#E65100"
+                tools:text="OPEN" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvAdminDialogSubject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            android:layout_marginTop="6dp"
+            tools:text="UPI deducted but unlock failed at Station 1" />
+
+        <TextView
+            android:id="@+id/tvAdminDialogCustomer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="2dp"
+            tools:text="Customer: Rahul Verma • +91 98765 43210" />
+
+        <!-- Category & Priority Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/tvAdminDialogCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#E8F5E9"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:layout_marginEnd="6dp"
+                tools:text="PAYMENT_PROBLEM" />
+
+            <TextView
+                android:id="@+id/tvAdminDialogPriority"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#F5F5F5"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="#616161"
+                tools:text="URGENT" />
+        </LinearLayout>
+
+        <!-- Context (Booking / Bicycle / Disputed Amount) -->
+        <TextView
+            android:id="@+id/tvAdminDialogContext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#E65100"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            tools:text="Linked: Booking #BK-991 • Bicycle: BIK-102 • Disputed: ₹70.00" />
+
+        <TextView
+            android:id="@+id/tvAdminDialogDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="#424242"
+            android:layout_marginTop="6dp"
+            tools:text="Payment succeeded on PhonePe UPI for ₹70.00 but booking showed timeout and dock didn't release." />
+
+        <ImageView
+            android:id="@+id/ivAdminDialogAttachment"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:scaleType="centerCrop"
+            android:background="#EEEEEE"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E0E0E0"
+            android:layout_marginVertical="12dp" />
+
+        <!-- 1. Assign Support Staff -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Assign Support Staff / Handler"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            android:layout_marginBottom="4dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <EditText
+                android:id="@+id/etAssignStaff"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_border"
+                android:hint="Staff Name (e.g. Anand - Support Desk)"
+                android:textSize="12sp"
+                android:paddingHorizontal="10dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAssignStaff"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:text="Assign"
+                android:textSize="11sp"
+                android:backgroundTint="#1B5E20"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- 2. Reply to Customer -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send Support Message to Customer"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            android:layout_marginBottom="4dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <EditText
+                android:id="@+id/etAdminReply"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_border"
+                android:hint="Reply text to customer..."
+                android:textSize="12sp"
+                android:paddingHorizontal="10dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSendAdminReply"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:text="Reply"
+                android:textSize="11sp"
+                android:backgroundTint="#FF6F00"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- 3. Resolution Notes -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Resolution &amp; Actions"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            android:layout_marginBottom="4dp" />
+
+        <EditText
+            android:id="@+id/etResolutionNotes"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/bg_border"
+            android:hint="Enter resolution summary (e.g. Refund of ₹70 initiated to customer UPI; dock B-03 reset)"
+            android:textSize="12sp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp"
+            android:gravity="top|start"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Action Buttons Grid -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEscalateTicket"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:text="⚡ Escalate"
+                android:textSize="11sp"
+                android:textColor="#C62828"
+                app:strokeColor="#C62828"
+                android:layout_marginEnd="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnResolveDialogTicket"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:text="✓ Resolve"
+                android:textSize="11sp"
+                android:backgroundTint="#2E7D32"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCloseDialogTicket"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:text="Close"
+                android:textSize="11sp"
+                android:backgroundTint="#616161"
+                android:layout_marginStart="4dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -8,7 +8,9 @@
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="6dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardElevation="2dp"
+    android:clickable="true"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -45,18 +47,38 @@
                 tools:text="OPEN" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvTicketCategory"
-            android:layout_width="wrap_content"
+        <!-- Category & Priority Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#F5F5F5"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="2dp"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:textColor="#616161"
-            android:layout_marginTop="6dp"
-            tools:text="DAMAGED_BICYCLE" />
+            android:orientation="horizontal"
+            android:layout_marginTop="6dp">
+
+            <TextView
+                android:id="@+id/tvTicketCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#F5F5F5"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="#616161"
+                android:layout_marginEnd="6dp"
+                tools:text="DAMAGED_BICYCLE" />
+
+            <TextView
+                android:id="@+id/tvTicketPriority"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#FFEBEE"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="#C62828"
+                tools:text="URGENT" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvTicketDescription"
@@ -67,6 +89,18 @@
             android:layout_marginTop="6dp"
             tools:text="Rear tire was punctured near Pune Station dock." />
 
+        <!-- Optional Context (Booking / Bicycle / Disputed amount) -->
+        <TextView
+            android:id="@+id/tvTicketContext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#E65100"
+            android:textStyle="bold"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
+            tools:text="Linked: Booking #BK-991 • Disputed: ₹70.00" />
+
         <TextView
             android:id="@+id/tvTicketUser"
             android:layout_width="wrap_content"
@@ -75,6 +109,28 @@
             android:textColor="#757575"
             android:layout_marginTop="4dp"
             tools:text="Reported by Rajesh Sharma • +91 98765 43210" />
+
+        <TextView
+            android:id="@+id/tvTicketStaff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#1B5E20"
+            android:layout_marginTop="2dp"
+            android:visibility="gone"
+            tools:text="Assigned Staff: Rohan (Fleet Support)" />
+
+        <TextView
+            android:id="@+id/tvTicketNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#E8F5E9"
+            android:padding="8dp"
+            android:textSize="12sp"
+            android:textColor="#2E7D32"
+            android:layout_marginTop="6dp"
+            android:visibility="gone"
+            tools:text="Resolution: Replacement bicycle dispatched." />
 
         <View
             android:layout_width="match_parent"
@@ -99,25 +155,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnResolveTicket"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Resolve Grievance"
-                android:textSize="12sp"
-                android:textColor="#1B5E20" />
+                android:layout_height="36dp"
+                android:text="Triage / Actions"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:backgroundTint="#1B5E20"
+                app:cornerRadius="6dp" />
         </LinearLayout>
-
-        <!-- Admin resolution notes (if resolved) -->
-        <TextView
-            android:id="@+id/tvTicketNotes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#E8F5E9"
-            android:padding="8dp"
-            android:textSize="11sp"
-            android:textColor="#1B5E20"
-            android:visibility="gone"
-            tools:text="Resolution: Bicycle retrieved by handler and moved to maintenance." />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

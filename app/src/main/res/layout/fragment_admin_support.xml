@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Support &amp; Grievances"
+            android:text="Support Grievances &amp; Redressal"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF" />
@@ -27,19 +27,42 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Customer complaints, damaged bicycles, and service reports"
+            android:text="Real-time complaints, fare disputes, refunds, and ticket triage"
             android:textSize="12sp"
             android:textColor="#C8E6C9"
             android:layout_marginTop="2dp" />
     </LinearLayout>
 
-    <!-- Filter Chips -->
+    <!-- Search Input -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="4dp">
+
+        <EditText
+            android:id="@+id/etSearchSupport"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_border"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="8dp"
+            android:hint="Search by Ticket ID, Customer, Phone or Issue..."
+            android:textSize="13sp"
+            android:paddingHorizontal="12dp"
+            android:maxLines="1"
+            android:inputType="text" />
+    </LinearLayout>
+
+    <!-- Status Filter Chips -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="none"
         android:paddingHorizontal="16dp"
-        android:layout_marginVertical="10dp">
+        android:paddingTop="4dp"
+        android:paddingBottom="2dp">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupSupportStatus"
@@ -59,7 +82,35 @@
                 android:id="@+id/chipSupportOpen"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Open &amp; In Progress"
+                android:text="Open"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipSupportAssigned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Assigned"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipSupportInProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="In Progress"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipSupportWaiting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Waiting Customer"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipSupportReopened"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reopened"
                 style="@style/Widget.MaterialComponents.Chip.Choice" />
 
             <com.google.android.material.chip.Chip
@@ -67,6 +118,65 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Resolved"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipSupportClosed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Closed"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <!-- Priority Filter Chips -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="6dp">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupSupportPriority"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPriorityAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All Priorities"
+                android:checked="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPriorityUrgent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚡ Urgent"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPriorityHigh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="High"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPriorityMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Medium"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPriorityLow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Low"
                 style="@style/Widget.MaterialComponents.Chip.Choice" />
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
@@ -83,7 +193,7 @@
         android:id="@+id/tvEmptySupport"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No support grievances reported."
+        android:text="No support grievances matching your criteria."
         android:textAlignment="center"
         android:textColor="#9E9E9E"
         android:layout_marginVertical="48dp"

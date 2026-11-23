@@ -159,14 +159,25 @@ service cloud.firestore {
     }
 
     // ─── support_tickets ───────────────────────────────────────────────────────
-    // Customers can create grievances and read their own tickets.
-    // Administrators have full read and resolution capabilities.
+    // Customers can create grievances, read their own tickets, and update when reopening/replying.
+    // Administrators have full read, triage, escalation, and resolution capabilities.
     match /support_tickets/{ticketId} {
       allow read:   if isAuthenticated() &&
                        (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated();
-      allow update: if isAdmin();
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
+
+      // Threaded conversation messages
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() &&
+                       (get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.userId == request.auth.uid || isAdmin());
+        allow create: if isAuthenticated() &&
+                         (get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.userId == request.auth.uid || isAdmin());
+        allow update, delete: if isAdmin();
+      }
     }
 
     // ─── admin_settings ───────────────────────────────────────────────────────
