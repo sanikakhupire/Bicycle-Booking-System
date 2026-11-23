@@ -51,6 +51,14 @@ public class ProfileFragment extends Fragment {
         binding.btnSave.setOnClickListener(v -> saveProfile());
         binding.btnCancel.setOnClickListener(v -> toggleEditMode(false));
         binding.btnLogout.setOnClickListener(v -> confirmLogout());
+        binding.btnLoyaltyRewards.setOnClickListener(v ->
+            androidx.navigation.Navigation.findNavController(v).navigate(R.id.loyaltyFragment)
+        );
+
+        binding.btnReferral.setOnClickListener(v ->
+            androidx.navigation.Navigation.findNavController(v).navigate(R.id.referralFragment)
+        );
+
         binding.btnPaymentHistory.setOnClickListener(v ->
             androidx.navigation.Navigation.findNavController(v).navigate(R.id.paymentHistoryFragment)
         );

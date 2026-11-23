@@ -32,6 +32,8 @@ public class Bicycle {
     private String qrCode;       // QR code string used to unlock
     private String type;         // e.g., "Standard", "Electric", "Mountain"
     private String imageUrl;
+    private double averageRating = 5.0;
+    private int totalRatings = 0;
 
     // Required empty constructor for Firestore
     public Bicycle() {}
@@ -121,4 +123,10 @@ public class Bicycle {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public double getAverageRating() { return averageRating; }
+    public void setAverageRating(double averageRating) { this.averageRating = averageRating; }
+
+    public int getTotalRatings() { return totalRatings; }
+    public void setTotalRatings(int totalRatings) { this.totalRatings = totalRatings; }
 }

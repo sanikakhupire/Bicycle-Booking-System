@@ -84,7 +84,9 @@ public class BillingService {
             invoice.setUserId(booking.getUserId());
             invoice.setBicycleId(booking.getBicycleId());
             invoice.setBicycleType(booking.getBicycleType() != null ? booking.getBicycleType() : "Standard");
+            invoice.setStationId(booking.getStationId());
             invoice.setStationName(booking.getStationName());
+            invoice.setReturnStationId(booking.getReturnStationId());
             invoice.setReturnStationName(booking.getReturnStationName());
             invoice.setStartTime(booking.getStartTime());
             invoice.setEndTime(booking.getEndTime() != null ? booking.getEndTime() : new Date());

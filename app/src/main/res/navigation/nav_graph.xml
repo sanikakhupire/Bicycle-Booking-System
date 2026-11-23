@@ -181,6 +181,14 @@
         <action
             android:id="@+id/action_profile_to_helpCenter"
             app:destination="@id/helpCenterFragment" />
+
+        <action
+            android:id="@+id/action_profile_to_loyalty"
+            app:destination="@id/loyaltyFragment" />
+
+        <action
+            android:id="@+id/action_profile_to_referral"
+            app:destination="@id/referralFragment" />
     </fragment>
 
     <!-- Payment History & Invoices -->
@@ -294,5 +302,24 @@
             android:name="ticketId"
             app:argType="string" />
     </fragment>
+
+    <!-- Loyalty Rewards & Wallet -->
+    <fragment
+        android:id="@+id/loyaltyFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.loyalty.LoyaltyFragment"
+        android:label="Loyalty Rewards"
+        tools:layout="@layout/fragment_loyalty">
+
+        <action
+            android:id="@+id/action_loyalty_to_referral"
+            app:destination="@id/referralFragment" />
+    </fragment>
+
+    <!-- Refer & Earn -->
+    <fragment
+        android:id="@+id/referralFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.loyalty.ReferralFragment"
+        android:label="Refer &amp; Earn"
+        tools:layout="@layout/fragment_referral" />
 
 </navigation>

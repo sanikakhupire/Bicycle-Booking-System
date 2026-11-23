@@ -22,6 +22,7 @@ public class User {
     private String profileImageUrl;
     private boolean isAdmin;
     private String role = ROLE_USER;
+    private String referralCode;
 
     @ServerTimestamp
     private Date createdAt;
@@ -80,6 +81,9 @@ public class User {
     public boolean isHandler() {
         return ROLE_HANDLER.equalsIgnoreCase(role);
     }
+
+    public String getReferralCode() { return referralCode; }
+    public void setReferralCode(String referralCode) { this.referralCode = referralCode; }
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }

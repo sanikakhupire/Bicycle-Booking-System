@@ -109,6 +109,8 @@ public class AdminActivity extends AppCompatActivity {
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
         menu.add(0, 1009, 8, "Operational Alerts")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(0, 1010, 9, "Reviews & Ratings")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
         return true;
     }
 
@@ -143,6 +145,9 @@ public class AdminActivity extends AppCompatActivity {
             return true;
         } else if (id == 1009) {
             navController.navigate(R.id.adminNotificationsFragment);
+            return true;
+        } else if (id == 1010) {
+            navController.navigate(R.id.adminReviewsFragment);
             return true;
         }
         return super.onOptionsItemSelected(item);

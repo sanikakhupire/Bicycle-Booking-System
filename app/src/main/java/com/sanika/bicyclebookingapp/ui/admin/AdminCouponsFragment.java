@@ -86,7 +86,11 @@ public class AdminCouponsFragment extends Fragment {
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_create_coupon, null);
         EditText etCode = dialogView.findViewById(R.id.etCouponCode);
         EditText etDiscount = dialogView.findViewById(R.id.etDiscountValue);
+        EditText etMaxDiscount = dialogView.findViewById(R.id.etMaxDiscount);
         EditText etMinFare = dialogView.findViewById(R.id.etMinRideFare);
+        EditText etUsageLimit = dialogView.findViewById(R.id.etUsageLimit);
+        EditText etPerUserLimit = dialogView.findViewById(R.id.etPerUserLimit);
+        android.widget.CheckBox cbFirstRide = dialogView.findViewById(R.id.cbFirstRideOnly);
         EditText etDesc = dialogView.findViewById(R.id.etCouponDesc);
         RadioGroup rgType = dialogView.findViewById(R.id.rgDiscountType);
 
@@ -96,7 +100,11 @@ public class AdminCouponsFragment extends Fragment {
                 .setPositiveButton("Create", (dialog, which) -> {
                     String code = etCode.getText().toString().trim().toUpperCase();
                     String discountStr = etDiscount.getText().toString().trim();
+                    String maxDiscountStr = etMaxDiscount.getText().toString().trim();
                     String minFareStr = etMinFare.getText().toString().trim();
+                    String usageLimitStr = etUsageLimit.getText().toString().trim();
+                    String perUserStr = etPerUserLimit.getText().toString().trim();
+                    boolean isFirstRideOnly = cbFirstRide.isChecked();
                     String desc = etDesc.getText().toString().trim();
 
                     if (TextUtils.isEmpty(code) || TextUtils.isEmpty(discountStr)) {
@@ -110,21 +118,41 @@ public class AdminCouponsFragment extends Fragment {
                         discountVal = isPercent ? Long.parseLong(discountStr) : CurrencyUtil.toPaise(Double.parseDouble(discountStr));
                     } catch (Exception ignored) {}
 
+                    long maxDiscountVal = 5000L;
+                    if (!TextUtils.isEmpty(maxDiscountStr)) {
+                        try {
+                            maxDiscountVal = CurrencyUtil.toPaise(Double.parseDouble(maxDiscountStr));
+                        } catch (Exception ignored) {}
+                    }
+
                     long minFareVal = 2000L;
                     try {
                         minFareVal = CurrencyUtil.toPaise(Double.parseDouble(minFareStr));
                     } catch (Exception ignored) {}
+
+                    int usageLimit = 0;
+                    if (!TextUtils.isEmpty(usageLimitStr)) {
+                        try { usageLimit = Integer.parseInt(usageLimitStr); } catch (Exception ignored) {}
+                    }
+
+                    int perUserLimit = 1;
+                    if (!TextUtils.isEmpty(perUserStr)) {
+                        try { perUserLimit = Integer.parseInt(perUserStr); } catch (Exception ignored) {}
+                    }
 
                     Coupon coupon = new Coupon();
                     coupon.setCode(code);
                     coupon.setDiscountType(isPercent ? Coupon.TYPE_PERCENTAGE : Coupon.TYPE_FLAT);
                     if (isPercent) {
                         coupon.setDiscountPercentage(discountVal);
-                        coupon.setMaxDiscountPaise(5000L); // Capped at ₹50
+                        coupon.setMaxDiscountPaise(maxDiscountVal);
                     } else {
                         coupon.setDiscountValuePaise(discountVal);
                     }
                     coupon.setMinRideFarePaise(minFareVal);
+                    coupon.setFirstRideOnly(isFirstRideOnly);
+                    coupon.setUsageLimit(usageLimit);
+                    coupon.setPerUserLimit(perUserLimit);
                     coupon.setDescription(!desc.isEmpty() ? desc : ("Get " + (isPercent ? discountVal + "%" : CurrencyUtil.formatInrFromPaise(discountVal)) + " off"));
                     coupon.setActive(true);
 

@@ -218,5 +218,44 @@ service cloud.firestore {
     match /users/{userId}/settings/{settingId} {
       allow read, write: if isOwner(userId) || isAdmin();
     }
+
+    // ─── reviews ──────────────────────────────────────────────────────────────
+    // Public read for published reviews; Admins can read all.
+    // Customers can submit a review only once for their own completed ride.
+    // Only Administrators can moderate (update status / flag / hide) or delete.
+    match /reviews/{reviewId} {
+      allow read:   if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ─── loyalty_accounts ──────────────────────────────────────────────────────
+    // Customers can view and update their own loyalty wallet; Admins can manage all.
+    match /loyalty_accounts/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+
+      match /transactions/{txnId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // ─── referrals ─────────────────────────────────────────────────────────────
+    // Referrers and referees can view referral records; Admins can view all.
+    match /referrals/{referralId} {
+      allow read:   if isAuthenticated() &&
+                       (resource.data.referrerUserId == request.auth.uid || resource.data.refereeUserId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // ─── coupon_usages ─────────────────────────────────────────────────────────
+    // Tracks redemptions to prevent duplicate coupon use and enforce limits.
+    match /coupon_usages/{usageId} {
+      allow read:   if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
   }
 }

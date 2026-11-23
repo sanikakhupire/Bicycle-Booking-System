@@ -30,4 +30,8 @@ public class PricingViewModel extends ViewModel {
     public LiveData<Resource<Coupon>> validateCoupon(String code, long subtotalPaise) {
         return pricingRepository.validateCoupon(code, subtotalPaise);
     }
+
+    public LiveData<Resource<Coupon>> validateCoupon(String code, String userId, long subtotalPaise) {
+        return pricingRepository.validateCoupon(code, userId, subtotalPaise);
+    }
 }

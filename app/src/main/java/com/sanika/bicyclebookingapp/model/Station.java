@@ -15,6 +15,8 @@ public class Station {
     private GeoPoint location; // Firestore GeoPoint (latitude, longitude)
     private int totalBicycles;
     private int availableBicycles;
+    private double averageRating = 5.0;
+    private int totalRatings = 0;
 
     // Required empty constructor for Firestore
     public Station() {}
@@ -57,4 +59,10 @@ public class Station {
     public double getLongitude() {
         return location != null ? location.getLongitude() : 0.0;
     }
+
+    public double getAverageRating() { return averageRating; }
+    public void setAverageRating(double averageRating) { this.averageRating = averageRating; }
+
+    public int getTotalRatings() { return totalRatings; }
+    public void setTotalRatings(int totalRatings) { this.totalRatings = totalRatings; }
 }

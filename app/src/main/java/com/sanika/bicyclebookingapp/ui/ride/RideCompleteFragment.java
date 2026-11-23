@@ -41,9 +41,15 @@ public class RideCompleteFragment extends Fragment {
 
     private FragmentRideCompleteBinding binding;
     private BookingViewModel bookingViewModel;
+    private com.sanika.bicyclebookingapp.viewmodel.LoyaltyViewModel loyaltyViewModel;
+    private com.sanika.bicyclebookingapp.viewmodel.ReferralViewModel referralViewModel;
 
     private String bookingId;
     private String bicycleId;
+    private String pickupStationId;
+    private String pickupStationName;
+    private String returnStationId;
+    private String returnStationName;
     private float fare;
     private long durationMinutes;
     private double distanceKm = 0.0;
@@ -61,6 +67,8 @@ public class RideCompleteFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         bookingViewModel = new ViewModelProvider(this).get(BookingViewModel.class);
+        loyaltyViewModel = new ViewModelProvider(this).get(com.sanika.bicyclebookingapp.viewmodel.LoyaltyViewModel.class);
+        referralViewModel = new ViewModelProvider(this).get(com.sanika.bicyclebookingapp.viewmodel.ReferralViewModel.class);
 
         RideCompleteFragmentArgs args = RideCompleteFragmentArgs.fromBundle(getArguments());
         bookingId       = args.getBookingId();
@@ -99,6 +107,10 @@ public class RideCompleteFragment extends Fragment {
         if (invoice.getBicycleId() != null) {
             bicycleId = invoice.getBicycleId();
         }
+        pickupStationId = invoice.getStationId();
+        pickupStationName = invoice.getStationName();
+        returnStationId = invoice.getReturnStationId();
+        returnStationName = invoice.getReturnStationName();
         fare = (float) invoice.getTotalAmountInr();
         durationMinutes = invoice.getDurationMinutes();
         distanceKm = invoice.getDistanceKm();
@@ -270,6 +282,22 @@ public class RideCompleteFragment extends Fragment {
                 .show();
         });
 
+        binding.btnRateRide.setOnClickListener(v -> {
+            RateRideDialogFragment dialog = RateRideDialogFragment.newInstance(
+                    bookingId,
+                    bicycleId,
+                    pickupStationId,
+                    pickupStationName,
+                    returnStationId,
+                    returnStationName
+            );
+            dialog.setOnReviewSubmittedListener(review -> {
+                binding.btnRateRide.setText("✓ Ride & Bicycle Rated");
+                binding.btnRateRide.setEnabled(false);
+            });
+            dialog.show(getChildFragmentManager(), "RateRideDialog");
+        });
+
         binding.btnGoHome.setOnClickListener(v -> {
             NavDirections action = RideCompleteFragmentDirections.actionRideCompleteToHome();
             Navigation.findNavController(v).navigate(action);
@@ -302,6 +330,13 @@ public class RideCompleteFragment extends Fragment {
             .collection("bookings").document(bookingId)
             .update("paymentStatus", "PAID", "paymentTxnId", txnId);
 
+        // Credit customer loyalty points and evaluate milestone bonuses
+        String currentUid = com.google.firebase.auth.FirebaseAuth.getInstance().getUid();
+        if (currentUid != null) {
+            loyaltyViewModel.creditRidePoints(currentUid, bookingId, amountRecorded);
+            referralViewModel.onRefereeRideCompleted(currentUid, bookingId);
+        }
+
         // Update UI
         binding.tvPaymentStatus.setText("✓ Ride & Settlement Completed");
         binding.tvPaymentStatus.setTextColor(requireContext().getColor(R.color.colorAvailable));
@@ -309,6 +344,7 @@ public class RideCompleteFragment extends Fragment {
         binding.tvTransactionId.setVisibility(View.VISIBLE);
         binding.btnPayNow.setVisibility(View.GONE);
         binding.btnPayCash.setVisibility(View.GONE);
+        binding.btnRateRide.setVisibility(View.VISIBLE);
         binding.btnGoHome.setVisibility(View.VISIBLE);
     }
 

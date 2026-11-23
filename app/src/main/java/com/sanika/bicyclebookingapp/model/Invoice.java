@@ -20,7 +20,9 @@ public class Invoice {
     private String userId;
     private String bicycleId;
     private String bicycleType = "Standard";
+    private String stationId;
     private String stationName;
+    private String returnStationId;
     private String returnStationName;
 
     private Date startTime;
@@ -80,8 +82,14 @@ public class Invoice {
     public String getBicycleType() { return bicycleType; }
     public void setBicycleType(String bicycleType) { this.bicycleType = bicycleType; }
 
+    public String getStationId() { return stationId; }
+    public void setStationId(String stationId) { this.stationId = stationId; }
+
     public String getStationName() { return stationName; }
     public void setStationName(String stationName) { this.stationName = stationName; }
+
+    public String getReturnStationId() { return returnStationId; }
+    public void setReturnStationId(String returnStationId) { this.returnStationId = returnStationId; }
 
     public String getReturnStationName() { return returnStationName; }
     public void setReturnStationName(String returnStationName) { this.returnStationName = returnStationName; }

@@ -45,12 +45,52 @@
         android:inputType="numberDecimal" />
 
     <EditText
+        android:id="@+id/etMaxDiscount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Max Discount in ₹ for % coupons (e.g. 50)"
+        android:inputType="numberDecimal" />
+
+    <EditText
         android:id="@+id/etMinRideFare"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:hint="Minimum Ride Fare in ₹ (e.g. 30)"
         android:inputType="numberDecimal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <EditText
+            android:id="@+id/etUsageLimit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="System Limit (0=∞)"
+            android:inputType="number"
+            android:layout_marginEnd="6dp" />
+
+        <EditText
+            android:id="@+id/etPerUserLimit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Per-User (e.g. 1)"
+            android:inputType="number"
+            android:layout_marginStart="6dp" />
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/cbFirstRideOnly"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="First-Ride Customer Offer Only" />
 
     <EditText
         android:id="@+id/etCouponDesc"

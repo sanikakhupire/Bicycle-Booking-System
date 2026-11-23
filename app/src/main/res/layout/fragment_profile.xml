@@ -115,6 +115,26 @@
                 android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLoyaltyRewards"
+                style="@style/SecondaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Loyalty Rewards &amp; Points"
+                android:textColor="#E65100"
+                app:strokeColor="#FFE082" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReferral"
+                style="@style/SecondaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Refer &amp; Earn Rewards"
+                android:textColor="#1B5E20"
+                app:strokeColor="#C8E6C9" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPaymentHistory"
                 style="@style/SecondaryButton"
                 android:layout_width="match_parent"

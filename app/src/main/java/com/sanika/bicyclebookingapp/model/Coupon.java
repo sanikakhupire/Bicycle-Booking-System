@@ -3,8 +3,12 @@ package com.sanika.bicyclebookingapp.model;
 import com.google.firebase.firestore.DocumentId;
 import com.sanika.bicyclebookingapp.util.CurrencyUtil;
 
+import java.util.Date;
+
 /**
  * Coupon model for Indian promotions and promotional discounts.
+ * Supports percentage and flat INR discounts, first-ride restrictions,
+ * expiry dates, system-wide usage caps, and per-user limits.
  */
 public class Coupon {
 
@@ -22,10 +26,17 @@ public class Coupon {
     private boolean active = true;
     private String description = "Get ₹10 off on your ride";
 
+    // Advanced eligibility & limit rules
+    private boolean firstRideOnly = false;
+    private Date expiryDate;
+    private int usageLimit = 0;        // 0 = unlimited system-wide
+    private int currentUsageCount = 0; // Total times redeemed
+    private int perUserLimit = 1;      // Max redemption per individual customer
+
     public Coupon() {}
 
     public Coupon(String code, String discountType, long valuePaise, String description) {
-        this.code = code;
+        this.code = code != null ? code.toUpperCase() : null;
         this.discountType = discountType;
         this.discountValuePaise = valuePaise;
         this.description = description;
@@ -33,7 +44,7 @@ public class Coupon {
     }
 
     public Coupon(String code, String discountType, long valueOrPercent, long minRideFarePaise, long maxDiscountPaise, boolean active) {
-        this.code = code;
+        this.code = code != null ? code.toUpperCase() : null;
         this.discountType = discountType;
         if (TYPE_PERCENTAGE.equalsIgnoreCase(discountType)) {
             this.discountPercentage = valueOrPercent;
@@ -46,10 +57,52 @@ public class Coupon {
     }
 
     /**
+     * Checks whether the coupon is currently valid and unexpired.
+     */
+    public boolean isExpired() {
+        if (expiryDate == null) return false;
+        return new Date().after(expiryDate);
+    }
+
+    /**
+     * Checks if the coupon has reached its system-wide usage cap.
+     */
+    public boolean isUsageLimitReached() {
+        if (usageLimit <= 0) return false;
+        return currentUsageCount >= usageLimit;
+    }
+
+    /**
+     * Validates eligibility against the subtotal, customer's completed rides count, and prior user usages.
+     * Returns null if eligible, or an error reason string if ineligible.
+     */
+    public String getIneligibilityReason(long subtotalPaise, int userCompletedRides, int userUsageCount) {
+        if (!active) {
+            return "Coupon code is inactive";
+        }
+        if (isExpired()) {
+            return "Coupon code has expired";
+        }
+        if (isUsageLimitReached()) {
+            return "Coupon usage limit has been reached";
+        }
+        if (perUserLimit > 0 && userUsageCount >= perUserLimit) {
+            return "You have already reached the redemption limit for this coupon";
+        }
+        if (firstRideOnly && userCompletedRides > 0) {
+            return "This coupon is valid only for your first ride";
+        }
+        if (subtotalPaise < minRideFarePaise) {
+            return "Minimum ride fare of ₹" + String.format("%.2f", minRideFarePaise / 100.0) + " required for this coupon";
+        }
+        return null; // Eligible
+    }
+
+    /**
      * Calculates the discount in integer paise for a given subtotal.
      */
     public long calculateDiscountPaise(long subtotalPaise) {
-        if (!active || subtotalPaise < minRideFarePaise) {
+        if (!active || isExpired() || isUsageLimitReached() || subtotalPaise < minRideFarePaise) {
             return 0L;
         }
 
@@ -69,7 +122,7 @@ public class Coupon {
     public void setCouponId(String couponId) { this.couponId = couponId; }
 
     public String getCode() { return code; }
-    public void setCode(String code) { this.code = code; }
+    public void setCode(String code) { this.code = code != null ? code.toUpperCase() : null; }
 
     public String getDiscountType() { return discountType; }
     public void setDiscountType(String discountType) { this.discountType = discountType; }
@@ -91,6 +144,21 @@ public class Coupon {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public boolean isFirstRideOnly() { return firstRideOnly; }
+    public void setFirstRideOnly(boolean firstRideOnly) { this.firstRideOnly = firstRideOnly; }
+
+    public Date getExpiryDate() { return expiryDate; }
+    public void setExpiryDate(Date expiryDate) { this.expiryDate = expiryDate; }
+
+    public int getUsageLimit() { return usageLimit; }
+    public void setUsageLimit(int usageLimit) { this.usageLimit = usageLimit; }
+
+    public int getCurrentUsageCount() { return currentUsageCount; }
+    public void setCurrentUsageCount(int currentUsageCount) { this.currentUsageCount = currentUsageCount; }
+
+    public int getPerUserLimit() { return perUserLimit; }
+    public void setPerUserLimit(int perUserLimit) { this.perUserLimit = perUserLimit; }
 
     public double getDiscountValueInr() { return CurrencyUtil.toRupees(discountValuePaise); }
     public void setDiscountValueInr(double inr) { this.discountValuePaise = CurrencyUtil.toPaise(inr); }

@@ -28,6 +28,7 @@ public class AppNotification implements Serializable {
     public static final String TYPE_STATION_UPDATE              = "STATION_UPDATE";
     public static final String TYPE_MAINTENANCE_ALERT           = "MAINTENANCE_ALERT";
     public static final String TYPE_SUPPORT_TICKET_UPDATE       = "SUPPORT_TICKET_UPDATE";
+    public static final String TYPE_LOYALTY_POINTS_UPDATE       = "LOYALTY_POINTS_UPDATE";
 
     // Admin Notification Types
     public static final String TYPE_ADMIN_NEW_BOOKING           = "ADMIN_NEW_BOOKING";
@@ -55,6 +56,7 @@ public class AppNotification implements Serializable {
     public static final String TARGET_MAINTENANCE = "MAINTENANCE";
     public static final String TARGET_SUPPORT     = "SUPPORT";
     public static final String TARGET_STATION     = "STATION";
+    public static final String TARGET_LOYALTY     = "LOYALTY";
 
     @DocumentId
     private String notificationId;

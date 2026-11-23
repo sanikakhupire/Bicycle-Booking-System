@@ -415,6 +415,18 @@
             android:text="Pay by Cash"
             android:visibility="gone" />
 
+        <!-- Rate Ride & Bicycle button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRateRide"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:strokeColor="#FFB300"
+            android:textColor="#E65100"
+            android:text="★ Rate Your Ride &amp; Bicycle"
+            android:visibility="gone" />
+
         <!-- Go Home button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGoHome"
