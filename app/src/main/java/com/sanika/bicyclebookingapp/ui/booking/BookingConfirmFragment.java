@@ -21,6 +21,7 @@ import com.sanika.bicyclebookingapp.R;
 import com.sanika.bicyclebookingapp.databinding.FragmentBookingConfirmBinding;
 import com.sanika.bicyclebookingapp.model.Coupon;
 import com.sanika.bicyclebookingapp.model.PricingConfig;
+import com.sanika.bicyclebookingapp.service.PaymentGatewayService;
 import com.sanika.bicyclebookingapp.ui.main.MainActivity;
 import com.sanika.bicyclebookingapp.util.CurrencyUtil;
 import com.sanika.bicyclebookingapp.util.UpiPaymentManager;
@@ -199,31 +200,36 @@ public class BookingConfirmFragment extends Fragment {
         setLoading(true);
         binding.tvError.setVisibility(View.GONE);
 
-        android.content.Intent upiIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW,
-                android.net.Uri.parse("upi://pay"));
-        java.util.List<android.content.pm.ResolveInfo> apps =
-                requireActivity().getPackageManager().queryIntentActivities(upiIntent, 0);
+        String tempBookingId = "BOOK_DEP_" + (bicycleId.length() >= 6 ? bicycleId.substring(0, 6) : bicycleId);
 
-        if (apps != null && !apps.isEmpty()) {
-            UpiPaymentManager.startUpiPayment(
+        PaymentGatewayService.getInstance().startPayment(
                 requireActivity(),
-                (float) requiredDepositInr,
-                "DEP_" + (bicycleId.length() >= 8 ? bicycleId.substring(0, 8) : bicycleId),
-                "CycleGo security deposit"
-            );
-        } else {
-            setLoading(false);
-            new AlertDialog.Builder(requireContext())
-                .setTitle("UPI App Not Detected")
-                .setMessage("No Indian UPI app (GPay/PhonePe/Paytm) was found on this device.\n\nWould you like to simulate "
-                        + CurrencyUtil.formatInr(requiredDepositInr) + " test deposit to verify booking?")
-                .setPositiveButton("Simulate Deposit", (dialog, which) -> {
-                    depositPaid = true;
-                    proceedWithBooking("SIM_DEP_" + System.currentTimeMillis());
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-        }
+                tempBookingId,
+                null,
+                "DEPOSIT",
+                "Customer",
+                null,
+                null,
+                new PaymentGatewayService.GatewayCallback() {
+                    @Override
+                    public void onInitiating() {
+                        setLoading(true);
+                    }
+
+                    @Override
+                    public void onPaymentSuccess(String paymentId, String transactionId) {
+                        depositPaid = true;
+                        proceedWithBooking(transactionId);
+                    }
+
+                    @Override
+                    public void onPaymentFailed(String reason) {
+                        setLoading(false);
+                        binding.tvError.setVisibility(View.VISIBLE);
+                        binding.tvError.setText("Deposit payment unsuccessful: " + reason);
+                    }
+                }
+        );
     }
 
     private void proceedWithBooking(String depositTxnId) {

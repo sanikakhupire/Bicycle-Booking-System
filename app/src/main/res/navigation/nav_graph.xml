@@ -152,6 +152,18 @@
         android:id="@+id/profileFragment"
         android:name="com.sanika.bicyclebookingapp.ui.profile.ProfileFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+
+        <action
+            android:id="@+id/action_profile_to_paymentHistory"
+            app:destination="@id/paymentHistoryFragment" />
+    </fragment>
+
+    <!-- Payment History & Invoices -->
+    <fragment
+        android:id="@+id/paymentHistoryFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.payment.PaymentHistoryFragment"
+        android:label="Payments &amp; Invoices"
+        tools:layout="@layout/fragment_payment_history" />
 
 </navigation>

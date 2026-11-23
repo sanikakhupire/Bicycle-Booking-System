@@ -88,8 +88,11 @@ public class AdminActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(android.view.Menu menu) {
-        menu.add(0, 1001, 0, "Pricing & Billing")
+        menu.add(0, 1001, 0, "Pricing")
             .setIcon(android.R.drawable.ic_menu_preferences)
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.add(0, 1002, 1, "Payments")
+            .setIcon(android.R.drawable.ic_menu_agenda)
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
@@ -98,6 +101,9 @@ public class AdminActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(android.view.MenuItem item) {
         if (item.getItemId() == 1001 && navController != null) {
             navController.navigate(R.id.adminPricingFragment);
+            return true;
+        } else if (item.getItemId() == 1002 && navController != null) {
+            navController.navigate(R.id.adminPaymentsFragment);
             return true;
         }
         return super.onOptionsItemSelected(item);

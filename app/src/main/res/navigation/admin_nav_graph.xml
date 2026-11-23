@@ -41,4 +41,10 @@
         android:label="Pricing &amp; Billing"
         tools:layout="@layout/fragment_admin_pricing" />
 
+    <fragment
+        android:id="@+id/adminPaymentsFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.admin.AdminPaymentsFragment"
+        android:label="Payments &amp; Revenue"
+        tools:layout="@layout/fragment_admin_payments" />
+
 </navigation>

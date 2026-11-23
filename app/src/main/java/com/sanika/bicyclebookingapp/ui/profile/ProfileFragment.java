@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.sanika.bicyclebookingapp.R;
 import com.sanika.bicyclebookingapp.databinding.FragmentProfileBinding;
 import com.sanika.bicyclebookingapp.ui.admin.AdminActivity;
 import com.sanika.bicyclebookingapp.ui.auth.AuthActivity;
@@ -50,6 +51,9 @@ public class ProfileFragment extends Fragment {
         binding.btnSave.setOnClickListener(v -> saveProfile());
         binding.btnCancel.setOnClickListener(v -> toggleEditMode(false));
         binding.btnLogout.setOnClickListener(v -> confirmLogout());
+        binding.btnPaymentHistory.setOnClickListener(v ->
+            androidx.navigation.Navigation.findNavController(v).navigate(R.id.paymentHistoryFragment)
+        );
 
         // Admin panel button — hidden by default, shown only for admins
         binding.btnAdminPanel.setOnClickListener(v -> {

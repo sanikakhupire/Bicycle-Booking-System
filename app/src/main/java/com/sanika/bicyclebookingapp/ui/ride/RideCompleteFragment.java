@@ -21,6 +21,7 @@ import com.sanika.bicyclebookingapp.model.Booking;
 import com.sanika.bicyclebookingapp.model.Invoice;
 import com.sanika.bicyclebookingapp.model.PricingConfig;
 import com.sanika.bicyclebookingapp.service.BillingService;
+import com.sanika.bicyclebookingapp.service.PaymentGatewayService;
 import com.sanika.bicyclebookingapp.ui.main.MainActivity;
 import com.sanika.bicyclebookingapp.util.CurrencyUtil;
 import com.sanika.bicyclebookingapp.util.UpiPaymentManager;
@@ -211,15 +212,46 @@ public class RideCompleteFragment extends Fragment {
             );
         }
 
-        // Pay button → open UPI apps (GPay, PhonePe, Paytm)
-        binding.btnPayNow.setOnClickListener(v ->
-            UpiPaymentManager.startUpiPayment(
-                requireActivity(),
-                (float) (outstandingBalanceInr > 0 ? outstandingBalanceInr : fare),
-                bookingId,
-                "CycleGo ride payment"
-            )
-        );
+        // Pay button → launches Indian gateway (Razorpay / UPI / Cards / Netbanking / Sandbox)
+        binding.btnPayNow.setOnClickListener(v -> {
+            binding.btnPayNow.setEnabled(false);
+            binding.btnPayNow.setText("Connecting Gateway...");
+
+            PaymentGatewayService.getInstance().startPayment(
+                    requireActivity(),
+                    bookingId,
+                    null,
+                    "FARE",
+                    "Customer",
+                    null,
+                    null,
+                    new PaymentGatewayService.GatewayCallback() {
+                        @Override
+                        public void onInitiating() {
+                            if (binding != null) {
+                                binding.btnPayNow.setEnabled(false);
+                                binding.btnPayNow.setText("Creating Order...");
+                            }
+                        }
+
+                        @Override
+                        public void onPaymentSuccess(String paymentId, String transactionId) {
+                            if (binding != null) {
+                                handlePaymentSuccess(transactionId);
+                            }
+                        }
+
+                        @Override
+                        public void onPaymentFailed(String reason) {
+                            if (binding != null) {
+                                binding.btnPayNow.setEnabled(true);
+                                binding.btnPayNow.setText("Retry Payment (" + CurrencyUtil.formatInr(outstandingBalanceInr > 0 ? outstandingBalanceInr : fare) + ")");
+                                handlePaymentFailure(reason);
+                            }
+                        }
+                    }
+            );
+        });
 
         // Cash payment option
         binding.btnPayCash.setOnClickListener(v -> {
