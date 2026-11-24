@@ -138,6 +138,12 @@ public class AdminDashboardFragment extends Fragment {
 
         binding.btnNavNotifications.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.adminNotificationsFragment));
+
+        binding.cardRevenueHero.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.adminAnalyticsFragment));
+
+        binding.btnNavAnalytics.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.adminAnalyticsFragment));
     }
 
     @Override

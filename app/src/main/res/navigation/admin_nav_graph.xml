@@ -101,4 +101,10 @@
         android:label="Customer Reviews"
         tools:layout="@layout/fragment_admin_reviews" />
 
+    <fragment
+        android:id="@+id/adminAnalyticsFragment"
+        android:name="com.sanika.bicyclebookingapp.ui.admin.AdminAnalyticsFragment"
+        android:label="Business Analytics &amp; Reports"
+        tools:layout="@layout/fragment_admin_analytics" />
+
 </navigation>

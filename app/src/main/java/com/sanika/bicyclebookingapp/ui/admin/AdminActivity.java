@@ -90,26 +90,28 @@ public class AdminActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(android.view.Menu menu) {
-        menu.add(0, 1002, 0, "Revenue")
-            .setIcon(android.R.drawable.ic_menu_agenda)
+        menu.add(0, 1011, 0, "Analytics & Reports")
+            .setIcon(android.R.drawable.ic_menu_sort_by_size)
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menu.add(0, 1001, 1, "Pricing")
+        menu.add(0, 1002, 1, "Revenue")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
-        menu.add(0, 1003, 2, "Customers")
+        menu.add(0, 1001, 2, "Pricing")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
-        menu.add(0, 1004, 3, "Bookings")
+        menu.add(0, 1003, 3, "Customers")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
-        menu.add(0, 1005, 4, "Coupons")
+        menu.add(0, 1004, 4, "Bookings")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
-        menu.add(0, 1006, 5, "Support Grievances")
+        menu.add(0, 1005, 5, "Coupons")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
-        menu.add(0, 1007, 6, "Admin Settings")
+        menu.add(0, 1006, 6, "Support Grievances")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
-        menu.add(0, 1008, 7, "Maintenance & Repairs")
+        menu.add(0, 1007, 7, "Admin Settings")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
-        menu.add(0, 1009, 8, "Operational Alerts")
+        menu.add(0, 1008, 8, "Maintenance & Repairs")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
-        menu.add(0, 1010, 9, "Reviews & Ratings")
+        menu.add(0, 1009, 9, "Operational Alerts")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(0, 1010, 10, "Reviews & Ratings")
             .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER);
         return true;
     }
@@ -119,7 +121,10 @@ public class AdminActivity extends AppCompatActivity {
         if (navController == null) return super.onOptionsItemSelected(item);
 
         int id = item.getItemId();
-        if (id == 1001) {
+        if (id == 1011) {
+            navController.navigate(R.id.adminAnalyticsFragment);
+            return true;
+        } else if (id == 1001) {
             navController.navigate(R.id.adminPricingFragment);
             return true;
         } else if (id == 1002) {

@@ -45,6 +45,7 @@
 
                 <!-- Revenue Hero Block -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardRevenueHero"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -630,6 +631,16 @@
                     android:textAlignment="textStart"
                     android:textColor="#1976D2"
                     app:strokeColor="#90CAF9" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavAnalytics"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="12. Business Analytics &amp; Reports (CSV)"
+                    android:textAlignment="textStart"
+                    android:textColor="#1A237E"
+                    app:strokeColor="#7986CB" />
 
             </LinearLayout>
 

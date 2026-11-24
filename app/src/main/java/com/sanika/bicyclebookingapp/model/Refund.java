@@ -72,6 +72,7 @@ public class Refund {
     public long getAmountPaise() { return amountPaise; }
     public void setAmountPaise(long amountPaise) { this.amountPaise = amountPaise; }
     public double getAmountInr() { return CurrencyUtil.toRupees(amountPaise); }
+    public double getAmount() { return getAmountInr(); }
 
     public String getCurrency() { return currency; }
     public void setCurrency(String currency) { this.currency = currency; }

@@ -198,13 +198,20 @@ public class MaintenanceRecord implements Serializable {
 
     public long getCostPaise() { return costPaise; }
     public void setCostPaise(long costPaise) { this.costPaise = costPaise; }
+    public long getTotalCostPaise() { return costPaise; }
+    public void setTotalCostPaise(long costPaise) { this.costPaise = costPaise; }
 
     public double getCostInr() { return costPaise / 100.0; }
     public void setCostInr(double inr) { this.costPaise = Math.round(inr * 100.0); }
+    public double getCost() { return getCostInr(); }
 
     public String getFormattedCost() {
         return CurrencyUtil.formatInr(getCostInr());
     }
+
+    public String getCategory() { return damageCategory; }
+    public String getAssignedStaffName() { return assignedStaff; }
+    public Date getCreatedAt() { return reportedAt != null ? reportedAt : new Date(); }
 
     public String getBeforeImageUrl() { return beforeImageUrl; }
     public void setBeforeImageUrl(String beforeImageUrl) { this.beforeImageUrl = beforeImageUrl; }
