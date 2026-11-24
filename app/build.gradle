@@ -18,9 +18,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField "String", "ENVIRONMENT", "\"debug\""
+            buildConfigField "boolean", "ENABLE_SECURE_LOGS", "true"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "ENVIRONMENT", "\"production\""
+            buildConfigField "boolean", "ENABLE_SECURE_LOGS", "false"
         }
     }
     compileOptions {
@@ -29,6 +35,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 }
 
@@ -45,6 +52,8 @@ dependencies {
     implementation libs.firebase.storage
     implementation libs.firebase.messaging
     implementation libs.firebase.functions
+    implementation libs.firebase.appcheck.playintegrity
+    implementation libs.firebase.appcheck.debug
 
     // Navigation Component
     implementation libs.navigation.fragment

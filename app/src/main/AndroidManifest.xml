@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
     <application
+        android:name=".BicycleBookingApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -51,6 +52,11 @@
         <!-- Admin Activity -->
         <activity
             android:name=".ui.admin.AdminActivity"
+            android:exported="false" />
+
+        <!-- Legal & Privacy Activity -->
+        <activity
+            android:name=".ui.legal.LegalActivity"
             android:exported="false" />
 
         <!-- Cycle Handler Activity -->

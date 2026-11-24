@@ -79,7 +79,7 @@ public class User {
     }
 
     public boolean isHandler() {
-        return ROLE_HANDLER.equalsIgnoreCase(role);
+        return ROLE_HANDLER.equalsIgnoreCase(role) || isAdmin();
     }
 
     public String getReferralCode() { return referralCode; }

@@ -75,6 +75,11 @@ public class ProfileFragment extends Fragment {
             androidx.navigation.Navigation.findNavController(v).navigate(R.id.reportDamageFragment)
         );
 
+        binding.btnLegalPrivacy.setOnClickListener(v -> {
+            Intent intent = new Intent(requireActivity(), com.sanika.bicyclebookingapp.ui.legal.LegalActivity.class);
+            startActivity(intent);
+        });
+
         // Admin panel button — hidden by default, shown only for admins
         binding.btnAdminPanel.setOnClickListener(v -> {
             Intent intent = new Intent(requireActivity(), AdminActivity.class);
