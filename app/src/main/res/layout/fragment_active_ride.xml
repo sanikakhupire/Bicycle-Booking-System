@@ -16,7 +16,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1.2">
+            android:layout_weight="1.1">
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/mapRide"
@@ -30,33 +30,36 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|start"
                 android:layout_margin="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/colorAvailable">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="6dp"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="#34D399"
+                app:cardBackgroundColor="@color/colorPrimaryDark">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp">
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp">
 
                     <View
-                        android:layout_width="8dp"
-                        android:layout_height="8dp"
-                        android:background="@drawable/ic_check_circle"
-                        android:backgroundTint="#FFFFFF" />
+                        android:layout_width="9dp"
+                        android:layout_height="9dp"
+                        android:background="@drawable/circle_dot"
+                        android:backgroundTint="#34D399" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="LIVE GPS TRACKING"
+                        android:layout_marginStart="8dp"
+                        android:text="LIVE GPS TELEMETRY"
                         android:textColor="#FFFFFF"
                         android:textSize="11sp"
+                        android:letterSpacing="0.05"
                         android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -69,18 +72,19 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="16dp"
                 android:contentDescription="Center location"
-                app:fabSize="mini"
+                app:fabSize="normal"
                 app:backgroundTint="#FFFFFF"
                 app:tint="@color/colorPrimary"
                 android:src="@android:drawable/ic_menu_mylocation" />
         </FrameLayout>
 
-        <!-- Bottom Controls & Metrics Section -->
+        <!-- Bottom Controls & HUD Section -->
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1.4"
-            android:fillViewport="true">
+            android:layout_weight="1.3"
+            android:fillViewport="true"
+            android:background="@color/colorBackground">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -89,20 +93,20 @@
                 android:orientation="vertical"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
-                android:paddingTop="12dp"
-                android:paddingBottom="20dp">
+                android:paddingTop="16dp"
+                android:paddingBottom="24dp">
 
                 <!-- GPS Warning Alert (if disabled) -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardGpsWarning"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="12dp"
                     android:visibility="gone"
-                    app:cardBackgroundColor="#FFEBEE"
-                    app:cardCornerRadius="10dp"
+                    app:cardBackgroundColor="#FEF2F2"
+                    app:cardCornerRadius="14dp"
                     app:cardElevation="2dp"
-                    app:strokeColor="#FFCDD2"
+                    app:strokeColor="#FCA5A5"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -116,8 +120,8 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="⚠️ GPS is disabled. Enable location for route tracking."
-                            android:textColor="#C62828"
+                            android:text="GPS Disabled. Turn on location for real-time tracking."
+                            android:textColor="#DC2626"
                             android:textSize="12sp"
                             android:textStyle="bold" />
 
@@ -126,38 +130,39 @@
                             style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="#C62828"
+                            android:textColor="#DC2626"
                             android:text="ENABLE"
-                            android:textSize="12sp" />
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Station Proximity Docking Banner (visible when within 100m of a station) -->
+                <!-- Station Proximity Docking Banner -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardProximityDock"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="14dp"
                     android:visibility="gone"
-                    app:cardBackgroundColor="#E8F5E9"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp"
-                    app:strokeColor="#C8E6C9"
-                    app:strokeWidth="1dp">
+                    app:cardBackgroundColor="@color/colorPrimaryContainer"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/colorPrimaryLight"
+                    app:strokeWidth="1.5dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="14dp">
+                        android:padding="16dp">
 
                         <TextView
                             android:id="@+id/tvProximityStation"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="🅿️ Near Station: City Center (38m away)"
-                            android:textColor="#2E7D32"
-                            android:textSize="13sp"
+                            android:text="Near Station: City Center (38m away)"
+                            android:textColor="@color/colorOnPrimaryContainer"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
 
                         <com.google.android.material.button.MaterialButton
@@ -165,144 +170,178 @@
                             style="@style/PrimaryButton"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:backgroundTint="#2E7D32"
-                            android:text="🅿️ Quick Dock &amp; End Ride Here"
-                            android:textSize="13sp" />
+                            android:layout_marginTop="10dp"
+                            android:text="Quick Dock &amp; End Ride Here"
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Timer -->
-                <TextView
-                    android:id="@+id/tvTimer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="00:00:00"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="38sp"
-                    android:textStyle="bold" />
-
-                <!-- Distance and Current Fare Card Grid -->
-                <LinearLayout
+                <!-- Digital Ride Timer HUD Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
+                    style="@style/CardStyle"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/colorSurface">
 
-                    <!-- Distance Card -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="6dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="2dp"
-                        app:cardBackgroundColor="#F5F5F5">
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingTop="18dp"
+                        android:paddingBottom="18dp">
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TRIP DURATION"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="11sp"
+                            android:letterSpacing="0.08"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvTimer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="00:00:00"
+                            android:textColor="@color/colorPrimaryDark"
+                            android:textSize="40sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="14dp"
+                            android:layout_marginBottom="14dp"
+                            android:layout_marginStart="24dp"
+                            android:layout_marginEnd="24dp"
+                            android:background="@color/colorDivider" />
+
+                        <!-- Real-Time Metrics Row: Distance & Live Fare -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="12dp">
+                            android:orientation="horizontal"
+                            android:weightSum="2">
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <!-- Distance Column -->
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="GPS DISTANCE"
-                                android:textColor="@color/colorTextSecondary"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
 
-                            <TextView
-                                android:id="@+id/tvDistance"
-                                android:layout_width="wrap_content"
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="DISTANCE"
+                                    android:textColor="@color/colorTextSecondary"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvDistance"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="0.00 km"
+                                    android:textColor="@color/colorTextPrimary"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <!-- Vertical Separator -->
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="36dp"
+                                android:background="@color/colorDivider" />
+
+                            <!-- Current Fare Column -->
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="0.00 km"
-                                android:textColor="@color/colorTextPrimary"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="ESTIMATED FARE"
+                                    android:textColor="@color/colorTextSecondary"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvEstimatedFare"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="₹0.00"
+                                    android:textColor="@color/colorAccent"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
                         </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Live Fare Card -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="6dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="2dp"
-                        app:cardBackgroundColor="#FFF8E1">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="12dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="CURRENT FARE"
-                                android:textColor="@color/colorTextSecondary"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tvEstimatedFare"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="₹0.00"
-                                android:textColor="@color/colorAccent"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-                </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Fare rate reminder card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    app:cardCornerRadius="10dp"
+                    android:layout_marginTop="12dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="1dp"
-                    app:cardBackgroundColor="#F1F8E9">
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/colorDivider"
+                    app:cardBackgroundColor="@color/colorSurfaceVariant">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="8dp"
-                        android:text="Rates (INR): ₹5 base + ₹8/km + ₹1/min (Min ₹10)"
+                        android:padding="10dp"
+                        android:text="Standard Rates: ₹5 base + ₹8/km + ₹1/min (Min ₹10)"
                         android:gravity="center"
-                        android:textColor="#33691E"
+                        android:textColor="@color/colorTextSecondary"
                         android:textSize="12sp" />
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Instruction banner -->
-                <TextView
-                    android:id="@+id/tvInstruction"
+                <!-- Return Instruction Banner -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:background="#FFF9C4"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:text="Return bicycle to any authorized station to end your ride."
-                    android:textColor="#F57F17"
-                    android:textSize="12sp" />
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#FEF3C7">
+
+                    <TextView
+                        android:id="@+id/tvInstruction"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="Dock bicycle at any authorized station hub to complete your ride."
+                        android:textColor="#92400E"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </com.google.android.material.card.MaterialCardView>
 
                 <TextView
                     android:id="@+id/tvError"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="8dp"
+                    android:background="#FEE2E2"
                     android:gravity="center"
-                    android:textColor="@color/colorUnavailable"
+                    android:padding="8dp"
+                    android:textColor="#DC2626"
                     android:textSize="12sp"
                     android:visibility="gone" />
 
@@ -310,31 +349,34 @@
                     android:id="@+id/progressBar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="10dp"
                     android:visibility="gone" />
 
-                <!-- Action Button 1: Return Bicycle by Scanning Station QR -->
+                <!-- Action Button 1: Return Bicycle via Station QR -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnReturnBicycle"
                     style="@style/PrimaryButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:text="📷 Scan Station QR to Return" />
+                    android:layout_marginTop="16dp"
+                    android:text="Scan Station QR to Return"
+                    app:icon="@drawable/ic_camera"
+                    app:iconGravity="textStart"
+                    app:iconPadding="10dp" />
 
-                <!-- Action Button 2: Report Damage / Unsafe Bicycle -->
+                <!-- Action Button 2: Report Problem / Unsafe Bicycle -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnReportIssue"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="⚠️ Report Problem / Unsafe Bicycle"
-                    android:textColor="#C62828"
-                    app:strokeColor="#EF9A9A" />
+                    android:layout_marginTop="10dp"
+                    android:text="Report Bicycle Issue"
+                    android:textColor="#DC2626"
+                    app:cornerRadius="14dp"
+                    app:strokeColor="#FCA5A5" />
 
-                <!-- Hidden — kept for backwards-compatibility -->
+                <!-- Hidden for backwards compatibility -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEndRide"
                     style="@style/PrimaryButton"

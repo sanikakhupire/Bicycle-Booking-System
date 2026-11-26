@@ -6,93 +6,114 @@
     android:background="@color/colorBackground"
     android:orientation="vertical">
 
-    <!-- Toolbar -->
-    <LinearLayout
+    <!-- Top Navigation Header -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@color/colorPrimary"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="8dp"
-        android:paddingEnd="16dp">
+        android:layout_height="60dp"
+        android:background="@color/colorSurface"
+        android:elevation="4dp"
+        android:paddingHorizontal="16dp">
 
         <ImageView
             android:id="@+id/ivBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_back"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="start|center_vertical"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
-            android:padding="8dp"
-            android:tint="@color/white" />
+            android:padding="10dp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/colorTextPrimary" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
+            android:layout_gravity="center"
+            android:fontFamily="sans-serif-bold"
             android:text="Station Details"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="18sp" />
+    </FrameLayout>
 
     <!-- Station Info Card -->
     <com.google.android.material.card.MaterialCardView
         style="@style/CardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp">
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="@color/colorCardBackground"
+        app:cardElevation="3dp"
+        app:strokeColor="#E2E8F0"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
-            <TextView
-                android:id="@+id/tvStationName"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Station Name"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvStationName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-black"
+                    android:letterSpacing="-0.01"
+                    android:text="Station Name"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/tvAvailableCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/circle_dot"
+                    android:backgroundTint="#ECFDF5"
+                    android:fontFamily="sans-serif-bold"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:text="● 0 Available"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="6dp"
+                android:fontFamily="sans-serif-regular"
                 android:textColor="@color/colorTextSecondary"
                 android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tvAvailableCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="@color/colorAvailable"
-                android:textSize="14sp"
-                android:textStyle="bold" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="4dp"
         android:layout_marginBottom="8dp"
-        android:text="Available Bicycles"
-        android:textColor="@color/colorTextPrimary"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:fontFamily="sans-serif-bold"
+        android:letterSpacing="0.04"
+        android:text="SELECT A BICYCLE"
+        android:textColor="@color/colorTextSecondary"
+        android:textSize="12sp" />
 
     <!-- Category Filter Chips -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="12dp"
         android:scrollbars="none">
 
         <com.google.android.material.chip.ChipGroup
@@ -138,6 +159,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+        android:indeterminateTint="@color/colorPrimary"
         android:visibility="gone" />
 
     <LinearLayout
@@ -153,6 +176,7 @@
             android:id="@+id/tvNoBicycles"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:gravity="center"
             android:text="@string/error_no_bicycles"
             android:textColor="@color/colorTextSecondary"
@@ -163,7 +187,7 @@
             style="@style/SecondaryButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:text="Refresh Availability" />
     </LinearLayout>
 
@@ -173,8 +197,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="24dp" />
 
 </LinearLayout>

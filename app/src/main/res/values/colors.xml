@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Brand Colors -->
-    <color name="colorPrimary">#1B5E20</color>
-    <color name="colorPrimaryDark">#003300</color>
-    <color name="colorPrimaryLight">#4CAF50</color>
-    <color name="colorAccent">#FF6F00</color>
-    <color name="colorAccentLight">#FFB300</color>
+    <!-- Modern Emerald Brand Colors -->
+    <color name="colorPrimary">#059669</color>
+    <color name="colorPrimaryDark">#047857</color>
+    <color name="colorPrimaryLight">#10B981</color>
+    <color name="colorPrimaryContainer">#ECFDF5</color>
+    <color name="colorOnPrimaryContainer">#065F46</color>
 
-    <!-- Background -->
-    <color name="colorBackground">#F5F5F5</color>
+    <!-- Secondary & Accent -->
+    <color name="colorSecondary">#0284C7</color>
+    <color name="colorSecondaryContainer">#E0F2FE</color>
+    <color name="colorAccent">#F59E0B</color>
+    <color name="colorAccentLight">#FBBF24</color>
+
+    <!-- Background & Canvas -->
+    <color name="colorBackground">#F8FAFC</color>
     <color name="colorSurface">#FFFFFF</color>
+    <color name="colorSurfaceVariant">#F1F5F9</color>
     <color name="colorCardBackground">#FFFFFF</color>
 
-    <!-- Text -->
-    <color name="colorTextPrimary">#212121</color>
-    <color name="colorTextSecondary">#757575</color>
-    <color name="colorTextHint">#BDBDBD</color>
+    <!-- Crisp High-Contrast Typography -->
+    <color name="colorTextPrimary">#0F172A</color>
+    <color name="colorTextSecondary">#475569</color>
+    <color name="colorTextHint">#94A3B8</color>
     <color name="colorTextOnPrimary">#FFFFFF</color>
 
-    <!-- Status Colors -->
-    <color name="colorAvailable">#4CAF50</color>
-    <color name="colorUnavailable">#F44336</color>
-    <color name="colorPending">#FF9800</color>
-    <color name="colorCompleted">#2196F3</color>
+    <!-- Status & Semantics -->
+    <color name="colorAvailable">#10B981</color>
+    <color name="colorUnavailable">#EF4444</color>
+    <color name="colorPending">#F59E0B</color>
+    <color name="colorCompleted">#0284C7</color>
 
-    <!-- Misc -->
-    <color name="colorDivider">#E0E0E0</color>
-    <color name="colorRipple">#1A1B5E20</color>
-    <color name="colorShadow">#33000000</color>
+    <!-- Dividers & Borders -->
+    <color name="colorDivider">#E2E8F0</color>
+    <color name="colorBorder">#CBD5E1</color>
+    <color name="colorRipple">#26059669</color>
+    <color name="colorShadow">#140F172A</color>
+
+    <!-- Essentials -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00000000</color>
